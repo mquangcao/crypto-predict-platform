@@ -1,135 +1,172 @@
-# Turborepo starter
+**Giới Thiệu**
 
-This Turborepo starter is maintained by the Turborepo core team.
+Đây là một monorepo sử dụng Turborepo, chứa nhiều ứng dụng và packages liên quan đến một nền tảng crypto (frontend Next.js, dịch vụ NestJS cho authentication, market streaming và news AI). README này tóm tắt cấu trúc, các package đã cài, yêu cầu môi trường và cách chạy / build dự án.
 
-## Using this example
+**Yêu Cầu Môi Trường**
 
-Run the following command:
+- **Node.js**: >= 18 (theo `package.json` gốc)
+- **npm**: dự án sử dụng `packageManager` = `npm@10.9.0` (khuyến nghị) hoặc quản lý package tương thích
+- **Turborepo**: devDependency `turbo` được khai báo; bạn có thể dùng `npx turbo` nếu không cài global
 
-```sh
-npx create-turbo@latest
-```
+**Cấu Trúc Dự Án (chung)**
 
-## What's inside?
+- `apps/`
+  - `frontend/` — Next.js app (React 19, Next 16)
+  - `auth-service/` — NestJS service cho authentication
+  - `market-service/` — NestJS service xử lý stream giá và websocket
+  - `news-ai-service/` — NestJS service cho xử lý tin tức + AI
+- `packages/`
+  - `ui/` — thư viện component chia sẻ
+    **Introduction**
 
-This Turborepo includes the following packages/apps:
+  This repository is a Turborepo monorepo containing multiple applications and shared packages for a crypto platform: a Next.js frontend and several NestJS microservices (authentication, market streaming, and news AI). This README summarizes the project layout, installed packages, environment requirements, and how to run and build the project.
 
-### Apps and Packages
+  **Environment Requirements**
+  - **Node.js**: >= 18 (declared in the root `package.json`)
+  - **npm**: This project uses `packageManager` = `npm@10.9.0` (recommended), but other compatible package managers will also work.
+  - **Turborepo**: `turbo` is listed in devDependencies; you can use `npx turbo` if you don't have it installed globally.
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+  **Repository Structure (high level)**
+  - `apps/`
+    - `frontend/` — Next.js app (React 19, Next 16)
+    - `auth-service/` — NestJS authentication service
+    - `market-service/` — NestJS market streaming & websocket service
+    - `news-ai-service/` — NestJS news + AI service
+  - `packages/`
+    - `ui/` — shared React component library
+    - `eslint-config/`, `typescript-config/` — shared configurations
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+  **Key Tools & Installed Packages**
+  - Root:
+    - `turbo` (Turborepo), `prettier`, `typescript`
+  - Frontend (`apps/frontend`):
+    - `next@16.x`, `react@19.x`, `react-dom@19.x`, `socket.io-client`, `lightweight-charts`
+    - Dev tools: `tailwindcss`, `eslint`, `prettier`, `typescript`
+  - Backend services (`auth-service`, `market-service`, `news-ai-service`):
+    - `@nestjs/*` (v11), `reflect-metadata`, `rxjs`
+    - `market-service` additionally uses `@nestjs/platform-socket.io`, `@nestjs/websockets`, `axios`, and `ws` for realtime streams
+    - Dev & test: `jest`, `ts-jest`, `ts-node`, `eslint`, `prettier`, etc.
+  - Shared packages (`packages/ui`, `packages/eslint-config`, `packages/typescript-config`):
+    - `react`, `react-dom` (inside `ui`), and shared lint/tsconfig packages
 
-### Utilities
+  **Important Scripts (root & per-app)**
+  - Root `package.json`:
+    - `npm run dev` → `turbo run dev --parallel` (run dev servers in parallel)
+    - `npm run build` → `turbo run build`
+    - `npm run lint` → `turbo run lint`
+    - `npm run format` → `prettier --write "**/*.{ts,tsx,md}"`
+    - `npm run check-types` → `turbo run check-types`
 
-This Turborepo has some additional tools already setup for you:
+  - Frontend (`apps/frontend`):
+    - `npm run dev` → `next dev`
+    - `npm run build` → `next build`
+    - `npm run start` → `next start`
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+  - NestJS services (`apps/*-service`):
+    - `npm run dev` → `nest start --watch`
+    - `npm run build` → `nest build`
+    - `npm run start:prod` → `node dist/main`
 
-### Build
+  You can run a single app by `cd` into its folder and running `npm install` and the appropriate `npm run` script, or you can use Turborepo from the root to run multiple apps concurrently.
 
-To build all apps and packages, run the following command:
+  **Quick Start & Installation (Windows PowerShell)**
+  1. Install dependencies at the repository root:
 
-```
-cd my-turborepo
+  ```powershell
+  cd "c:\Users\User\OneDrive - VNU-HCMUS\Documents\KHTN\KTPM\DOAN\crypto-platform"
+  npm install
+  ```
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+  2. Start all apps in development mode using Turborepo:
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+  ```powershell
+  npm run dev
+  ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+  This runs `turbo run dev --parallel` and starts the configured apps under `apps/*`.
+  3. Run a single app locally
+  - Frontend:
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+  ```powershell
+  cd apps/frontend
+  npm run dev
+  ```
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+  - Auth service:
 
-### Develop
+  ```powershell
+  cd apps/auth-service
+  npm run dev
+  ```
 
-To develop all apps and packages, run the following command:
+  - Market service:
 
-```
-cd my-turborepo
+  ```powershell
+  cd apps/market-service
+  npm run dev
+  ```
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+  - News AI service:
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+  ```powershell
+  cd apps/news-ai-service
+  npm run dev
+  ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+  4. Build for production (example: build everything with Turbo):
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+  ```powershell
+  npm run build
+  ```
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+  You can also build a specific app using a Turbo filter, e.g.:
 
-### Remote Caching
+  ```powershell
+  npx turbo build --filter=apps/frontend
+  ```
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+  5. Start a built NestJS service in production mode (example):
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+  ```powershell
+  cd apps/market-service
+  npm run build
+  npm run start:prod
+  ```
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+  **Linting / Formatting / Type Checking**
+  - Lint the entire monorepo:
 
-```
-cd my-turborepo
+  ```powershell
+  npm run lint
+  ```
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
+  - Format code with Prettier:
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
+  ```powershell
+  npm run format
+  ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+  - Run TypeScript checks (if configured):
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+  ```powershell
+  npm run check-types
+  ```
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
+  **Project-specific Notes**
+  - The frontend Next.js config enables the React compiler (`reactCompiler: true`) — see `apps/frontend/next.config.ts`.
+  - `market-service` uses WebSocket/Socket.io (`@nestjs/platform-socket.io`, `ws`) to stream realtime price data — the frontend must connect to the appropriate endpoint.
+  - The NestJS services rely on environment variables where applicable; there are no default `.env` files in the repository. Check each service's `src/main.ts` or configuration files for port and env expectations.
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
+  **Troubleshooting Tips**
+  - If Node version is incompatible: install Node >=18 or use nvm to switch versions.
+  - If Turbo CLI errors occur: use `npx turbo` instead of a global `turbo` installation.
+  - If an app fails to start: check console logs, confirm required env vars, and ensure ports are not in conflict.
 
-## Useful Links
+  **Next Steps (optional tasks I can help with)**
+  - Run `npm install` and `npm run dev` in this workspace and report errors/logs.
+  - Create `.env.example` files for each service (you can provide expected env variables).
+  - Add Dockerfiles and a basic `docker-compose` for local development.
 
-Learn more about the power of Turborepo:
+  ***
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+  _This README was generated automatically from the repository's `package.json`, `turbo.json`, and `next.config.ts`. If you want me to include example environment variables, service ports, or deployment instructions (Docker/CI), tell me which one to add next._
