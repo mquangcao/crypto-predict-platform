@@ -46,7 +46,7 @@ export default function HomePage() {
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 md:p-4 max-h-[260px] flex flex-col">
               <h2 className="text-sm font-semibold mb-2 flex items-center justify-between">
                 <span>Tin tức mới nhất</span>
-                <span className="text-xs text-slate-400">Mock data</span>
+                <span className="text-xs text-slate-400"></span>
               </h2>
               <div className="flex-1 overflow-y-auto pr-1">
                 <NewsList />
