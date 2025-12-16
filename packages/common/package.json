@@ -22,7 +22,9 @@
     "@nestjs/common": "^11.1.9",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.9",
-    "@nestjs/swagger": "^11.2.3"
+    "@nestjs/microservices": "^11.1.9",
+    "@nestjs/swagger": "^11.2.3",
+    "config": "^4.1.1"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
