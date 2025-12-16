@@ -1,0 +1,30 @@
+{
+  "name": "@app/common",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:clean": "rimraf dist && npm run build",
+    "build": "npx tsc -p tsconfig.json"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./*": {
+      "import": "./dist/*.js",
+      "require": "./dist/*.js"
+    }
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.9",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.1.9",
+    "@nestjs/swagger": "^11.2.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

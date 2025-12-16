@@ -4,7 +4,7 @@ import axios from 'axios';
 export type Timeframe = '1m' | '5m' | '1h' | '1d';
 
 export interface Candle {
-  time: number;        // unix seconds
+  time: number; // unix seconds
   open: number;
   high: number;
   low: number;
