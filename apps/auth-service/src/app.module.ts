@@ -8,13 +8,13 @@ import { getConfig } from '@app/common';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: getConfig('core.database.type'),
-      host: getConfig('core.database.host'),
-      port: getConfig('core.database.port'),
-      username: getConfig('core.database.username'),
-      password: getConfig<string>('core.database.password'),
-      database: getConfig('core.database.dbName'),
-      synchronize: getConfig('core.database.synchronize'),
+      type: getConfig('database.type'),
+      host: getConfig('database.host'),
+      port: getConfig('database.port'),
+      username: getConfig('database.username'),
+      password: getConfig<string>('database.password'),
+      database: getConfig('database.dbName'),
+      synchronize: getConfig('database.synchronize'),
       autoLoadEntities: true,
     } as TypeOrmModuleOptions),
     CoreModule.forRoot(),
