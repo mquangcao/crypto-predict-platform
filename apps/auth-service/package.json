@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@app/common": "^1.0.0",
+    "@app/core": "^1.0.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
