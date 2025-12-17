@@ -1,0 +1,42 @@
+_format_version: "3.0"
+
+services:
+  - name: auth-service
+    url: http://host.docker.internal:4001
+    routes:
+      - name: auth-route
+        paths:
+          - /auth
+        strip_path: false
+
+  - name: user-service
+    url: http://host.docker.internal:4002
+    routes:
+      - name: user-route
+        paths:
+          - /user
+        strip_path: false
+
+  - name: market-service
+    url: http://host.docker.internal:3001
+    routes:
+      - name: market-route
+        paths:
+          - /market
+        strip_path: false
+
+  - name: news-service
+    url: http://host.docker.internal:3002
+    routes:
+      - name: news-route
+        paths:
+          - /news
+        strip_path: false
+
+  - name: news-ai-service
+    url: http://host.docker.internal:3003
+    routes:
+      - name: news-ai-route
+        paths:
+          - /news-ai
+        strip_path: false
