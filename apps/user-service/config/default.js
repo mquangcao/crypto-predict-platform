@@ -4,11 +4,11 @@ module.exports = {
   database: {
     type: 'postgres',
     host: 'localhost',
-    port: 5433,
+    port: 5434,
     username: 'postgres',
     password: 'postgres',
     dbName: 'postgres',
-    synchronize: false,
+    synchronize: true,
     logging: false,
   },
   core: {

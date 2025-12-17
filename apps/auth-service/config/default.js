@@ -8,7 +8,7 @@ module.exports = {
     username: 'postgres',
     password: 'postgres',
     dbName: 'postgres',
-    synchronize: false,
+    synchronize: true,
     logging: false,
   },
   core: {

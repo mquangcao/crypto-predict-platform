@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  auth-db: ## Postgres DB for auth-service
+    image: bitnami/postgresql:latest
+    networks:
+      - nest
+    volumes:
+      - auth_db_data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=postgres
+      - POSTGRESQL_DATABASE=postgres
+    ports:
+      - "5433:5432"
+
+  user-db: ## Postgres DB for user-service
+    image: bitnami/postgresql:latest
+    networks:
+      - nest
+    volumes:
+      - user_db_data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=postgres
+      - POSTGRESQL_DATABASE=postgres
+    ports:
+      - "5434:5432"
+
+networks:
+  nest:
+    driver: bridge
+
+volumes:
+  auth_db_data:
+  user_db_data:
