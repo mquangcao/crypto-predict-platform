@@ -1,11 +1,13 @@
 import { Repository } from 'typeorm';
 
-import { UserRole } from '@app/common';
+import { SERVICE, USER_OPERATION, UserRole } from '@app/common';
+import { GatewayService } from '@app/core';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { LoginResponseDto } from '../dtos/login-response.dto';
 import { RefreshTokenDto } from '../dtos/refresh-token.dto';
+import { RegisterRequestDto } from '../dtos/register-request.dto';
 import { RefreshTokenEntity } from '../entities/refresh-token.entity';
 import { UserRoleToTokenRoleMapper } from '../mapper/token-role.mapper';
 import { TokenService } from './token.service';
@@ -17,6 +19,7 @@ export class AuthService {
     private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
     private readonly tokenService: TokenService,
     private readonly mapper: UserRoleToTokenRoleMapper,
+    private readonly gatewayService: GatewayService,
   ) {}
 
   async login(user: { id: string; role: UserRole }): Promise<LoginResponseDto> {
@@ -79,5 +82,19 @@ export class AuthService {
 
   async logout(userId: string): Promise<void> {
     await this.refreshTokenRepository.delete({ userId });
+  }
+
+  async register(dto: RegisterRequestDto): Promise<void> {
+    await this.gatewayService.runOperation({
+      serviceId: SERVICE.USER,
+      operationId: USER_OPERATION.CREATE_USER,
+      payload: {
+        email: dto.email,
+        username: dto.email,
+        password: dto.password,
+        fullName: dto.fullName,
+        role: UserRole.BASIC,
+      },
+    });
   }
 }

@@ -3,6 +3,11 @@ import { INestApplication, Logger } from "@nestjs/common";
 import { setupSwagger } from "../../docs";
 import { getConfig } from "../config";
 import { MicroserviceOptions } from "@nestjs/microservices";
+import {
+  HttpLoggingInterceptor,
+  HttpResponseInterceptor,
+} from "../../interceptors";
+import { HttpExceptionFilter } from "../../filters";
 
 export interface SetupBootstrapOptions {
   swaggerTitle?: string;
@@ -29,6 +34,13 @@ export async function setupBootstrap(
 
   const d = new Date().toTimeString();
   logger.verbose(`Current UTC Timezone: ${timeZone}: ${d}`);
+
+  app.useGlobalInterceptors(
+    new HttpResponseInterceptor(),
+    HttpLoggingInterceptor({ logLevel: options.logLevel ?? "debug" })
+  );
+
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   const appName = getConfig<string>("appName");
   const swaggerPath = options.swaggerPath ?? `/api/${appName}/docs`;

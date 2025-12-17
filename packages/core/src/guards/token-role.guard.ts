@@ -1,7 +1,6 @@
 import { Observable } from "rxjs";
 
-import { IS_PUBLIC_KEY, TOKEN_ROLE_KEY } from "../decorators";
-import { TokenRole } from "../enums";
+import { IS_PUBLIC_KEY, TOKEN_ROLE_KEY, TokenRole } from "@app/common";
 import {
   CanActivate,
   ExecutionContext,
