@@ -23,7 +23,8 @@ export interface DatePickerInputProps extends Omit<
 export const DatePickerInput = forwardRef<
   HTMLButtonElement,
   DatePickerInputProps
->(({ name, label, description, error, ...props }) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+>(({ name, label, description, error, ...props }, ref) => {
   const form = useForm();
   const value = form.form.watch(name as any);
 

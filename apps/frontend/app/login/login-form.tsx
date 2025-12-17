@@ -27,65 +27,62 @@ export function LoginForm() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: "user@example.com",
+      password: "password123",
       remember: true,
     },
   });
 
-  async function handleSubmit(data: LoginFormValues) {
-    setLoading(true);
-    try {
-      console.log("Login submit:", data);
-      await new Promise((r) => setTimeout(r, 500));
-      alert("Mock login thành công (chưa nối backend)");
-    } catch (err) {
-      console.error(err);
-      alert("Có lỗi xảy ra");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const handleSubmit = form.handleSubmit((data) => {
+    // Transform form values to API format
+    const variables = {
+      method: "password" as const,
+      data: {
+        username: data.email,
+        password: data.password,
+      },
+    };
+
+    console.log("Submitting login form with data:", variables);
+  });
 
   return (
-    <FormProvider form={form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <TextInput
-          name="email"
-          label="Email"
-          type="email"
-          required
-          placeholder="you@example.com"
+    <FormProvider form={form} onSubmit={handleSubmit} className="space-y-4">
+      <TextInput
+        name="email"
+        label="Email"
+        type="email"
+        required
+        placeholder="you@example.com"
+      />
+
+      <PasswordInput
+        name="password"
+        label="Mật khẩu"
+        required
+        minLength={6}
+        placeholder="••••••••"
+      />
+
+      {/* Remember Me & Forgot Password */}
+      <div className="flex items-center justify-between">
+        <Checkbox
+          name="remember"
+          label="Remember me"
+          className="text-sm select-none"
+          disabled={loading}
         />
+        <Link
+          href="/forgot-password"
+          className="text-sm font-semibold text-indigo-400 hover:text-indigo-300"
+        >
+          Forgot password?
+        </Link>
+      </div>
 
-        <PasswordInput
-          name="password"
-          label="Mật khẩu"
-          required
-          minLength={6}
-          placeholder="••••••••"
-        />
-
-        {/* Remember Me & Forgot Password */}
-        <div className="flex items-center justify-between">
-          <Checkbox
-            name="remember"
-            label="Remember me"
-            className="text-sm select-none"
-            disabled={loading}
-          />
-          <Link
-            href="/forgot-password"
-            className="text-sm font-semibold text-indigo-400 hover:text-indigo-300"
-          >
-            Forgot password?
-          </Link>
-        </div>
-
-        <SubmitButton isLoading={loading} className="w-full mt-2">
-          Đăng nhập
-        </SubmitButton>
-      </form>
+      <SubmitButton isLoading={loading} className="w-full mt-2">
+        Đăng nhập
+      </SubmitButton>
     </FormProvider>
   );
 }
