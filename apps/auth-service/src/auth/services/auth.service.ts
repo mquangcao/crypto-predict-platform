@@ -2,18 +2,20 @@ import { Repository } from 'typeorm';
 
 import { UserRole } from '@app/common';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 
 import { LoginResponseDto } from '../dtos/login-response.dto';
 import { RefreshTokenDto } from '../dtos/refresh-token.dto';
 import { RefreshTokenEntity } from '../entities/refresh-token.entity';
 import { UserRoleToTokenRoleMapper } from '../mapper/token-role.mapper';
-import { AccountTokenService } from './token.service';
+import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectRepository(RefreshTokenEntity)
     private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
-    private readonly tokenService: AccountTokenService,
+    private readonly tokenService: TokenService,
     private readonly mapper: UserRoleToTokenRoleMapper,
   ) {}
 

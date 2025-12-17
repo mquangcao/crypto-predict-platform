@@ -13,7 +13,7 @@ export interface GeneratedTokens {
 }
 
 @Injectable()
-export class AccountTokenService {
+export class TokenService {
   private readonly ACCESS_TOKEN_EXPIRES_IN = getConfig('token.expiresIn');
   private readonly REFRESH_TOKEN_EXPIRES_IN = getConfig('token.refreshExpiresIn');
 

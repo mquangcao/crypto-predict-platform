@@ -11,6 +11,11 @@ module.exports = {
     synchronize: true,
     logging: false,
   },
+  token: {
+    expiresIn: 3600,
+    refreshExpiresIn: 3600 * 24 * 30, // 30 days
+    secret: 'your-very-secure-secret',
+  },
   core: {
     gateway: {
       initServices: ['auth'],

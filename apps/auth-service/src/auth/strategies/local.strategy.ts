@@ -17,7 +17,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     }
 
     const user = await this.gatewayService.runOperation({
-      serviceId: SERVICE.AUTH,
+      serviceId: SERVICE.USER,
       operationId: USER_OPERATION.FIND_USER_BY_IDENTIFIER,
       payload: {
         identifier: username,

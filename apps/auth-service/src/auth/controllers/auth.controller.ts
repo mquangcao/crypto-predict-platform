@@ -1,5 +1,5 @@
 import { ApiResponseDto, ResponseBuilder, TokenPayload } from '@app/common';
-import { Body, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 
@@ -8,6 +8,7 @@ import { LoginResponseDto } from '../dtos/login-response.dto';
 import { RefreshTokenDto } from '../dtos/refresh-token.dto';
 import { AuthService } from '../services/auth.service';
 
+@Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

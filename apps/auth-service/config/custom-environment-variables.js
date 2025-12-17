@@ -16,6 +16,11 @@ module.exports = {
     dbName: 'DATABASE_DB_NAME',
     synchronize: boolean('DATABASE_SYNCHRONIZE'),
   },
+  token: {
+    expiresIn: number('TOKEN_EXPIRES_IN'),
+    refreshExpiresIn: number('TOKEN_REFRESH_EXPIRES_IN'),
+    secret: 'TOKEN_SECRET',
+  },
   core: {
     gateway: {
       initServices: json('CORE_GATEWAY_INIT_SERVICES'),
