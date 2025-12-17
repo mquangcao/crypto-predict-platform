@@ -81,7 +81,7 @@ export function LoginForm() {
       </div>
 
       <SubmitButton isLoading={loading} className="w-full mt-2">
-        Đăng nhập
+        Login
       </SubmitButton>
     </FormProvider>
   );
