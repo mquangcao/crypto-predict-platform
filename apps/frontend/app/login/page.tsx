@@ -1,98 +1,47 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { LoginForm } from "./login-form";
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-
-    setLoading(true);
-    try {
-      // TODO: sau này gọi auth-service, ví dụ:
-      // const res = await fetch("http://localhost:4001/auth/login", { ... })
-      console.log("Login submit:", { email, password });
-      await new Promise((r) => setTimeout(r, 500));
-      alert("Mock login thành công (chưa nối backend)");
-    } catch (err) {
-      console.error(err);
-      alert("Có lỗi xảy ra (mock)");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-        <div className="mb-6 text-center">
-          <div className="text-2xl font-semibold mb-1">
-            <span className="text-indigo-500">Crypto</span>Lab
-          </div>
-          <p className="text-xs text-slate-400">
-            Đăng nhập để xem biểu đồ giá, tin tức và AI insight.
-          </p>
+    <div
+      className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 via-white to-indigo-100 px-4"
+      data-theme="light"
+    >
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Welcome to Crypto Platform
+          </h1>
+          <p className="text-gray-600">Sign in to access your account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <label
-              htmlFor="email"
-              className="text-xs font-medium text-slate-300"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
-              placeholder="you@example.com"
-            />
+        {/* Login Form Card */}
+        <div className="bg-white rounded-lg shadow-lg p-8 text-gray-900">
+          <LoginForm />
+
+          {/* Register Link */}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/register"
+                className="font-semibold text-indigo-600 hover:text-indigo-500"
+              >
+                Sign up here
+              </Link>
+            </p>
           </div>
+        </div>
 
-          <div className="space-y-1">
-            <label
-              htmlFor="password"
-              className="text-xs font-medium text-slate-300"
-            >
-              Mật khẩu
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              minLength={6}
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
-              placeholder="••••••••"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed px-3 py-2 text-sm font-medium text-white mt-2"
-          >
-            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
-          </button>
-        </form>
-
-        <p className="text-xs text-slate-400 mt-4 text-center">
-          Chưa có tài khoản?{" "}
-          <Link
-            href="/register"
-            className="text-indigo-400 hover:text-indigo-300"
-          >
-            Đăng ký
-          </Link>
-        </p>
+        {/* Footer */}
+        <div className="text-center mt-8">
+          <p className="text-xs text-gray-500">
+            © 2025 Crypto Platform. All rights reserved.
+          </p>
+        </div>
       </div>
     </div>
   );
