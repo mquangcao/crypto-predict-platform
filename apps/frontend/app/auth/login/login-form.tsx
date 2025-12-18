@@ -5,6 +5,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { FormProvider, TextInput, PasswordInput } from "@/components/forms";
 import { SubmitButton } from "@/components/buttons";
 import { SocialLoginButtons, socialData } from "./social-login-buttons";
@@ -19,6 +22,7 @@ type LoginFormValues = z.infer<typeof LoginFormSchema>;
 
 export function LoginForm() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
@@ -27,14 +31,29 @@ export function LoginForm() {
     },
   });
 
-  const handleSubmit = form.handleSubmit((data) => {
-    console.log("Submitting login form with data:", data);
+  const handleSubmit = form.handleSubmit(async (data) => {
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await axios.post("http://localhost:4001/auth/login", {
+        username: data.email,
+        password: data.password,
+      });
+
+      if (response.data.statusCode === 201) {
+        // Save tokens to localStorage
+        localStorage.setItem("access_token", response.data.data.access_token);
+        localStorage.setItem("refresh_token", response.data.data.refresh_token);
+
+        toast.success("Login successful!");
+        router.push("/"); // Redirect to dashboard
+      }
+    } catch (error: any) {
+      console.error("Login error:", error);
+      const message = error.response?.data?.message || "Login failed";
+      toast.error(message);
+    } finally {
       setLoading(false);
-      console.log("Logged in");
-    }, 1500);
+    }
   });
 
   const handleSocialLogin = (provider: "google" | "keycloak") => {
