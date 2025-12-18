@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ReactNode } from "react";
+import { Providers } from "./providers/client-providers";
 
 // Configure Poppins globally
 const poppins = Poppins({
@@ -25,8 +26,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         />
       </head>
+
       <body className="min-h-screen bg-slate-950 text-slate-50 font-sans antialiased">
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
