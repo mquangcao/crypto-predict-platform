@@ -5,6 +5,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   FormProvider,
   TextInput,
@@ -27,6 +30,7 @@ type RegisterFormValues = z.infer<typeof RegisterFormSchema>;
 
 export function RegisterForm() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(RegisterFormSchema),
     defaultValues: {
@@ -40,13 +44,18 @@ export function RegisterForm() {
   const handleSubmit = form.handleSubmit(async (data) => {
     setLoading(true);
     try {
-      console.log("Registering user with data:", data);
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      alert("Registration successful! (Mock-up)");
-    } catch (err) {
-      console.error(err);
-      alert("An error occurred during registration");
+      const response = await axios.post("http://localhost:4001/auth/register", {
+        email: data.email,
+        password: data.password,
+        fullName: data.fullName,
+      });
+
+      toast.success("Registration successful!");
+      router.push("/auth/login"); // Redirect to login
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      const message = error.response?.data?.message || "Registration failed";
+      toast.error(message);
     } finally {
       setLoading(false);
     }
