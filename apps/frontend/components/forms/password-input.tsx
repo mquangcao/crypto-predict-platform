@@ -80,7 +80,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2 block"
           >
             {label}
-            {required && <span className="text-destructive -ml-1">*</span>}
+            {required && <span className="text-destructive ml-1">*</span>}
           </FormLabel>
         )}
         <FormControl>{inputElement}</FormControl>
