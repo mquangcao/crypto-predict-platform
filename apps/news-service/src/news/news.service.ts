@@ -1,6 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { CryptoCompareService } from './cryptocompare.service';
-import { CoinPriceService } from './coin-price.service';
 import { NewsRepository } from './news.repository';
 import { NewsItemDto } from './dto/news.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -11,7 +10,6 @@ export class NewsService implements OnModuleInit {
 
   constructor(
     private readonly cryptoCompareService: CryptoCompareService,
-    private readonly coinPriceService: CoinPriceService,
     private readonly newsRepository: NewsRepository,
   ) {}
 
@@ -29,14 +27,11 @@ export class NewsService implements OnModuleInit {
 
   private async fetchAndSaveNews() {
     try {
-      // Fetch news từ CryptoCompare
+      // Fetch news từ CryptoCompare (scrape hoặc API)
       const news = await this.cryptoCompareService.getNews('EN');
       
-      // Fetch coin prices
-      const coinPrices = await this.coinPriceService.getCurrentPrices();
-      
       // Lưu vào database
-      await this.newsRepository.saveNews(news, 'cryptocompare', coinPrices);
+      await this.newsRepository.saveNews(news, 'cryptocompare');
       
       this.logger.log(`Successfully fetched and saved ${news.length} news items`);
     } catch (error) {
@@ -49,6 +44,9 @@ export class NewsService implements OnModuleInit {
   }
 
   async getNewsBySentiment(sentiment: 'positive' | 'negative' | 'neutral', page: number = 1, limit: number = 10) {
-    return this.newsRepository.getNewsBySentimentPaginated(sentiment, page, limit);
+    // Map từ frontend format sang DB format
+    const dbSentiment = sentiment === 'positive' ? 'bullish' : 
+                        sentiment === 'negative' ? 'bearish' : 'neutral';
+    return this.newsRepository.getNewsBySentimentPaginated(dbSentiment, page, limit);
   }
 }

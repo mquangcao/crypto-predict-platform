@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { NewsController } from './news.controller';
 import { NewsService } from './news.service';
 import { CryptoCompareService } from './cryptocompare.service';
-import { CoinPriceService } from './coin-price.service';
+import { CryptoCompareScraperService } from './cryptocompare-scraper.service';
 import { NewsRepository } from './news.repository';
 import { HttpModule } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -17,7 +17,7 @@ import { NewsEntity } from './entities/news.entity';
   providers: [
     NewsService, 
     CryptoCompareService,
-    CoinPriceService,
+    CryptoCompareScraperService,
     NewsRepository,
   ],
   exports: [NewsService],

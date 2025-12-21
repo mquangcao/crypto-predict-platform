@@ -13,7 +13,7 @@ import { NewsEntity } from './news/entities/news.entity';
       type: 'sqlite',
       database: 'news.db',
       entities: [NewsEntity],
-      synchronize: true, // Auto create tables (only for development)
+      synchronize: true, // Auto create tables
     }),
     NewsModule,
   ],

@@ -1,53 +1,24 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# News Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A cryptocurrency news aggregation service that scrapes and serves news from CryptoCompare with sentiment analysis.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🚀 Features
 
-# News Service - Crypto Platform
+- **Web Scraping**: Uses Playwright to scrape latest crypto news from CryptoCompare website
+- **API Fallback**: Automatically falls back to CryptoCompare API if scraping fails
+- **Sentiment Analysis**: Keyword-based sentiment calculation (bullish/bearish/neutral)
+- **Scheduled Updates**: Automatically fetches news every 30 minutes via cron job
+- **SQLite Database**: Persistent storage with TypeORM
+- **Pagination Support**: API với phân trang và filter theo sentiment
+- **RESTful API**: Clean API endpoints cho frontend
 
-Microservice quản lý tin tức crypto với tính năng sentiment analysis tự động, scheduler, và lưu trữ database.
+## 🛠️ Tech Stack
 
-## 🚀 Tổng quan
-
-Service này cung cấp tin tức crypto từ **CryptoCompare API**, tự động phân tích sentiment (tích cực/tiêu cực/trung lập), lưu trữ vào SQLite database, và cung cấp RESTful API với pagination cho frontend.
-
-## 🛠️ Công nghệ sử dụng
-
-### Backend Framework & Core
-- **NestJS 11.x** - Node.js framework hiện đại
-- **TypeScript 5.7** - Ngôn ngữ lập trình
-- **@nestjs/schedule 4.x** - Cron jobs để fetch tin tức định kỳ
-- **@nestjs/axios** - HTTP client để gọi external APIs
-
-### Database & ORM
-- **SQLite 5.x** - Database nhẹ, không cần cài đặt server
-- **TypeORM 0.3.x** - ORM cho TypeScript/JavaScript
-- **Database file**: `news.db` (tự động tạo ở thư mục root)
-
-### External APIs
-- **CryptoCompare API** - Nguồn tin tức crypto chính
-- **Binance API** - Lấy giá coin realtime (BTC, ETH, BNB)
-
-### Sentiment Analysis
-- **sentiment 5.0.2** - Library phân tích cảm xúc văn bản (VADER-like algorithm)
+- **Framework**: NestJS 11.x
+- **Database**: SQLite + TypeORM
+- **Web Scraping**: Playwright (Chromium headless browser)
+- **Scheduling**: @nestjs/schedule (Cron jobs)
+- **HTTP Client**: Axios
 
 ## 📊 Database Schema
 
@@ -55,201 +26,349 @@ Service này cung cấp tin tức crypto từ **CryptoCompare API**, tự độn
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `id` | varchar (PK) | ID tin tức từ CryptoCompare |
+| `id` | varchar (PK) | Unique ID từ CryptoCompare |
 | `title` | text | Tiêu đề tin tức |
-| `source` | varchar | Nguồn tin (ví dụ: CoinDesk, Cointelegraph) |
-| `url` | varchar | Link gốc của tin tức |
-| `published_at` | datetime (indexed) | Thời gian publish |
-| `sentiment_label` | varchar(20) (indexed) | 'positive', 'negative', hoặc 'neutral' |
-| `sentiment_score` | float | Điểm sentiment từ -1.0 đến +1.0 |
-| `body` | text (nullable) | Nội dung/mô tả tin tức |
-| `categories` | text (nullable) | Danh mục tin tức |
-| `btc_price` | float (nullable) | Giá BTC lúc fetch |
-| `eth_price` | float (nullable) | Giá ETH lúc fetch |
-| `coin_prices` | json (nullable) | Object chứa giá các coin |
-| `api_source` | varchar(50) | 'cryptocompare' |
+| `source` | varchar | Nguồn tin (CoinDesk, Cointelegraph...) |
+| `url` | varchar | Link bài viết gốc |
+| `published_at` | datetime (indexed) | Thời gian xuất bản |
+| `body` | text (nullable) | Nội dung/mô tả tin |
+| `categories` | text (nullable) | Danh mục (BTC\|MARKET\|TRADING) |
+| `api_source` | varchar(50) | Nguồn API: 'cryptocompare' |
+| `sentiment_from_source` | varchar(50) (nullable) | Sentiment đã tính: bullish/bearish/neutral |
 | `created_at` | datetime | Thời gian tạo record |
 | `updated_at` | datetime | Thời gian update record |
 
-## 🧠 Sentiment Analysis
+## 🔄 Luồng Hoạt Động (Data Flow)
 
-### Cách tính Sentiment Score
+### 1. **Thu thập tin tức** (News Collection)
 
-Service sử dụng thuật toán kết hợp:
+```
+Khởi động / Mỗi 30 phút (Cron)
+    ↓
+NewsService.fetchAndSaveNews()
+    ↓
+CryptoCompareService.getNews()
+    ├─→ [TRY] Scrape từ website (Playwright)
+    │   ├─ Launch Chromium browser
+    │   ├─ Navigate: cryptocompare.com/news
+    │   ├─ Extract: title, url, source, body, sentiment
+    │   └─ Return scraped data
+    │
+    └─→ [FALLBACK] CryptoCompare API (nếu scrape fail)
+        ├─ GET /data/v2/news/?lang=EN
+        ├─ Transform API response
+        └─ Calculate sentiment từ keywords
+    ↓
+Transform data (chuẩn hóa format)
+    ├─ Tính sentiment nếu chưa có (calculateSentiment)
+    ├─ Format: id, title, source, url, published_at, body
+    └─ sentiment_from_source: bullish/bearish/neutral
+    ↓
+NewsRepository.saveNews()
+    ├─ Check tin đã tồn tại? (by ID)
+    ├─ → Update nếu có
+    └─ → Insert nếu chưa
+    ↓
+Lưu vào SQLite DB (news.db)
+```
 
-1. **Text Analysis (70%)**: Sử dụng `sentiment` library phân tích keywords trong title và body
-   - Từ tích cực: surge, rally, gains, bullish, rise, soar, breakthrough, adoption, positive, green...
-   - Từ tiêu cực: crash, dump, bearish, fall, drop, loss, hack, exploit, warning, risk, ban...
+### 2. **Tính Sentiment** (Sentiment Calculation)
 
-2. **Vote Analysis (30%)**: Dựa trên upvotes/downvotes từ CryptoCompare
-   - Vote ratio = (upvotes - downvotes) / total_votes
+**Khi nào tính?** Ngay khi fetch dữ liệu (trước khi lưu DB)
 
-3. **Final Score** = (0.7 × text_sentiment) + (0.3 × vote_sentiment)
-   - **Khoảng giá trị**: `-1.0` (cực kỳ tiêu cực) đến `+1.0` (cực kỳ tích cực)
+**Hàm**: `CryptoCompareService.calculateSentiment(title, body)`
 
-### Phân loại Sentiment Label
+**Logic**:
+```
+1. Nếu website có sẵn sentiment → Dùng luôn
+2. Nếu không:
+   a. Ghép title + body thành text
+   b. Lowercase để so sánh
+   c. Đếm bullish keywords (+1 mỗi từ)
+      - surge, rally, bullish, gains, rise, moon, pump, 
+        breakthrough, adoption, tăng, tích cực...
+   d. Đếm bearish keywords (-1 mỗi từ)
+      - crash, dump, bearish, fall, drop, hack, 
+        scam, regulation, giảm, tiêu cực...
+   e. Tính điểm:
+      - Score > 0 → "bullish"
+      - Score < 0 → "bearish"
+      - Score = 0 → "neutral"
+```
 
-| Score Range | Label | Màu hiển thị |
-|-------------|-------|--------------|
-| `>= 0.05` | **positive** (bullish) | 🟢 Xanh lá |
-| `<= -0.05` | **negative** (bearish) | 🔴 Đỏ |
-| `-0.05 < score < 0.05` | **neutral** | ⚪ Xám |
+**Kết quả**: Lưu vào `sentiment_from_source` trong DB
 
-**Lưu ý**: Ngưỡng phân loại rất thấp (±0.05) để nhạy hơn với các từ khóa sentiment.
+### 3. **API Query** (Frontend Request)
 
-## ⏰ Scheduled Tasks
+```
+Frontend gọi API
+    ↓
+GET /news?page=1&limit=10&sentiment=positive
+    ↓
+NewsController.getNews()
+    ├─ Parse query params
+    ├─ Có sentiment filter?
+    │   ├─ YES → NewsService.getNewsBySentiment()
+    │   └─ NO  → NewsService.getLatestNews()
+    ↓
+NewsRepository.getNewsPaginated() hoặc
+NewsRepository.getNewsBySentimentPaginated()
+    ├─ Map sentiment: positive→bullish, negative→bearish
+    ├─ Query DB với WHERE clause (fast!)
+    ├─ ORDER BY published_at DESC
+    ├─ LIMIT & OFFSET (phân trang)
+    └─ Transform: Entity → DTO
+    ↓
+entityToDto()
+    ├─ Đọc sentiment_from_source từ DB
+    ├─ Format time: "5 phút trước", "2 giờ trước"
+    └─ Return NewsItemDto
+    ↓
+Response JSON
+{
+  data: [...],
+  total: 100,
+  page: 1,
+  totalPages: 10
+}
+```
 
-- **Fetch tin tức**: Tự động chạy **mỗi 30 phút** (`@Cron('0 */30 * * * *')`)
-- **Khởi động ban đầu**: Fetch ngay khi service start
-- **Log**: Ghi log mỗi lần fetch thành công/thất bại
+## 📡 API Endpoints
 
-## 🔌 API Endpoints
+### GET /news
 
-### Base URL: `http://localhost:3002`
-
-#### 1. GET `/news` - Lấy danh sách tin tức (có phân trang)
+Lấy danh sách tin tức với phân trang và filter
 
 **Query Parameters:**
-- `page` (optional, default: 1) - Số trang
-- `limit` (optional, default: 10) - Số tin mỗi trang
-- `sentiment` (optional) - Lọc theo sentiment: 'positive' | 'negative' | 'neutral'
+- `page` (optional): Số trang, default = 1
+- `limit` (optional): Số tin/trang, default = 10
+- `sentiment` (optional): Filter theo sentiment
+  - `positive` - Tin tích cực (bullish)
+  - `negative` - Tin tiêu cực (bearish)
+  - `neutral` - Tin trung lập
+
+**Examples:**
+```bash
+# Tất cả tin tức
+GET http://localhost:3002/news
+
+# Phân trang
+GET http://localhost:3002/news?page=2&limit=20
+
+# Chỉ tin bullish
+GET http://localhost:3002/news?sentiment=positive
+
+# Kết hợp
+GET http://localhost:3002/news?page=1&limit=15&sentiment=negative
+```
 
 **Response:**
 ```json
 {
   "data": [
     {
-      "id": "123456",
-      "title": "Bitcoin surges past $100K",
-      "source": "CoinDesk",
-      "url": "https://...",
-      "published_at": "2025-12-16T10:30:00.000Z",
+      "id": "12345",
+      "title": "Bitcoin Surges Past $100K as Institutions Pile In",
+      "source": "Cointelegraph",
+      "time": "5 phút trước",
       "sentiment": "bullish",
-      "time": "2 giờ trước"
+      "url": "https://cointelegraph.com/...",
+      "published_at": "2025-12-22T10:30:00.000Z"
     }
   ],
-  "total": 145,
+  "total": 100,
   "page": 1,
-  "totalPages": 15
+  "totalPages": 10
 }
 ```
 
-**Ví dụ:**
-```bash
-# Trang 1, 10 tin
-curl http://localhost:3002/news?page=1&limit=10
+## 🏗️ Architecture
 
-# Chỉ tin tích cực
-curl http://localhost:3002/news?sentiment=positive&page=1&limit=10
-```
+### Services Overview
 
-## 🖥️ Frontend Integration
+1. **NewsService** - Business logic orchestrator
+   - Quản lý cron jobs (mỗi 30 phút)
+   - Điều phối flow thu thập tin tức
+   
+2. **CryptoCompareService** - Data integration
+   - Gọi scraper hoặc API
+   - Transform và tính sentiment
+   
+3. **CryptoCompareScraperService** - Web scraping
+   - Playwright automation
+   - Parse HTML từ CryptoCompare website
+   
+4. **NewsRepository** - Data access layer
+   - CRUD operations với DB
+   - Query với pagination và filter
+   
+5. **NewsController** - REST API endpoints
+   - Handle HTTP requests
+   - Validation và response formatting
 
-### Trang News (`/news`)
-- Hiển thị danh sách tin tức với layout card đẹp mắt
-- Phân trang 10 tin/trang với nút "Trang trước/Trang sau"
-- Click vào tin tức → Mở URL gốc trong tab mới
-- Sentiment badge màu sắc theo label (xanh/đỏ/xám)
-- Auto refresh mỗi 5 phút
-
-### Components
-- **Sidebar**: Menu điều hướng, click "Tin tức" → chuyển đến `/news`
-- **Topbar**: Header chung
-- **NewsList**: Component hiển thị danh sách tin tức (có pagination)
-
-## 📦 Installation & Setup
-
-```bash
-# 1. Cài đặt dependencies
-cd apps/news-service
-npm install
-
-# 2. Chạy development mode
-npm run start:dev
-
-# 3. Service sẽ chạy tại http://localhost:3002
-```
-
-**Lần chạy đầu tiên:**
-- SQLite database `news.db` sẽ tự động được tạo
-- Bảng `news` tự động sync schema (TypeORM `synchronize: true`)
-- Tin tức sẽ được fetch ngay lập tức từ CryptoCompare
-
-## 🧪 Testing
-
-```bash
-# Unit tests
-npm run test
-
-# E2E tests
-npm run test:e2e
-
-# Test coverage
-npm run test:cov
-```
-
-## 📁 Project Structure
+### Project Structure
 
 ```
 src/
 ├── news/
-│   ├── news.module.ts              # Module chính
-│   ├── news.service.ts             # Logic fetch & schedule
-│   ├── news.controller.ts          # REST endpoints
-│   ├── news.repository.ts          # Database operations & sentiment
-│   ├── cryptocompare.service.ts    # CryptoCompare API client
-│   ├── coin-price.service.ts       # Binance price fetcher
 │   ├── entities/
-│   │   └── news.entity.ts          # TypeORM entity
-│   └── dto/
-│       └── news.dto.ts             # Data transfer objects
-├── app.module.ts                   # Root module (ScheduleModule, TypeORM)
-└── main.ts                         # Bootstrap
-
-news.db                             # SQLite database file (auto-created)
+│   │   └── news.entity.ts               # TypeORM entity
+│   ├── dto/
+│   │   └── news.dto.ts                  # Data transfer objects
+│   ├── cryptocompare.service.ts         # API/Scraping integration
+│   ├── cryptocompare-scraper.service.ts # Playwright scraper
+│   ├── news.repository.ts               # Database queries
+│   ├── news.service.ts                  # Business logic
+│   ├── news.controller.ts               # REST API endpoints
+│   └── news.module.ts                   # Module dependencies
+├── app.module.ts
+└── main.ts                              # Bootstrap (port 3002)
 ```
 
-## 🔑 Environment Variables
+## 💻 Installation
 
-Không cần `.env` file cho development. Các config mặc định:
-
-- **Port**: 3002
-- **Database**: SQLite (`news.db`)
-- **CryptoCompare API Key**: Hardcoded trong `cryptocompare.service.ts`
-- **Cron schedule**: Mỗi 30 phút
-
-## 🐛 Troubleshooting
-
-### Lỗi: `Cannot find module '@nestjs/schedule'`
 ```bash
-npm install @nestjs/schedule --legacy-peer-deps
+# Install dependencies
+npm install
+
+# Install Playwright browsers
+npx playwright install chromium
 ```
 
-### Database bị lock
+## 🏃 Running the Service
+
 ```bash
-# Xóa database và restart
+# Development mode (with hot reload)
+npm run start:dev
+
+# Production build
+npm run build
+npm run start:prod
+```
+
+**Service runs on**: `http://localhost:3002`
+
+**Database file**: `apps/news-service/news.db`
+
+## ⚙️ Configuration
+
+Không cần file `.env`. API key đã được hardcode trong code:
+
+- **Port**: 3002 (định nghĩa trong `main.ts`)
+- **CryptoCompare API Key**: Có sẵn trong `cryptocompare.service.ts`
+- **Database**: SQLite file `news.db` (auto-created)
+- **Cron Schedule**: `0 */30 * * * *` (mỗi 30 phút)
+
+## 🧪 Testing
+
+```bash
+# Test API endpoints
+curl http://localhost:3002/news
+curl http://localhost:3002/news?sentiment=positive&page=1&limit=5
+
+# Check database
+sqlite3 news.db "SELECT id, title, sentiment_from_source FROM news LIMIT 5;"
+```
+
+## 🔧 Troubleshooting
+
+### 1. Playwright/Chromium Issues
+
+**Problem**: Chromium không download được
+
+```bash
+# Windows PowerShell
+$env:PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD="0"
+npx playwright install chromium
+
+# Hoặc cài thủ công
+npx playwright install chromium --force
+```
+
+### 2. Scraping Returns Empty
+
+**Nguyên nhân**:
+- CryptoCompare thay đổi cấu trúc HTML
+- Network/firewall chặn
+- Cloudflare protection
+
+**Giải pháp**: Service tự động fallback sang API, kiểm tra logs
+
+### 3. Database Locked
+
+**Problem**: `SQLITE_BUSY: database is locked`
+
+```bash
+# Stop tất cả instances
+taskkill /F /IM node.exe
+
+# Xóa DB và restart (mất dữ liệu!)
 rm news.db
 npm run start:dev
 ```
 
-### Không fetch được tin tức
-- Kiểm tra kết nối internet
-- Kiểm tra CryptoCompare API key còn hạn chưa
-- Xem log trong console
+### 4. Port Already in Use
 
-## 📝 Changelog
+**Problem**: Port 3002 đã được dùng
 
-**Version 2.0** (Current)
-- ✅ Chỉ sử dụng CryptoCompare API (loại bỏ CryptoPanic)
-- ✅ Scheduler fetch mỗi 30 phút
-- ✅ Lưu tin tức vào SQLite database
-- ✅ Sentiment analysis tự động với điểm số chi tiết
-- ✅ API pagination
-- ✅ Tích hợp coin prices từ Binance
+```powershell
+# Tìm process đang dùng port
+netstat -ano | findstr :3002
 
-**Version 1.0**
-- Mock data & CryptoPanic API
+# Kill process (thay PID)
+taskkill /PID <PID> /F
+```
+
+## 🚀 Performance Tips
+
+1. **Database Index**: Đã có index trên `published_at` và `sentiment_from_source`
+2. **Query Optimization**: Dùng `findAndCount` với WHERE thay vì load all
+3. **Pagination**: Luôn dùng `limit` để tránh load quá nhiều tin
+4. **Caching**: Database là cache layer (30 phút TTL)
+
+## 📝 Development Notes
+
+### Thêm nguồn tin mới
+
+1. Tạo service mới: `src/news/other-source.service.ts`
+2. Implement scraping/API logic
+3. Đăng ký trong `news.module.ts`:
+   ```typescript
+   providers: [..., OtherSourceService]
+   ```
+4. Gọi trong `NewsService.fetchAndSaveNews()`
+
+### Thay đổi logic sentiment
+
+Edit `CryptoCompareService.calculateSentiment()`:
+- Thêm/bớt keywords
+- Thay đổi scoring algorithm
+- Tích hợp ML model (future)
+
+## 📚 Dependencies
+
+```json
+{
+  "@nestjs/common": "^11.x",
+  "@nestjs/typeorm": "^10.x",
+  "@nestjs/schedule": "^4.x",
+  "typeorm": "^0.3.x",
+  "sqlite3": "^5.x",
+  "playwright": "^1.x",
+  "axios": "^1.x"
+}
+```
 
 ## 📄 License
 
-MIT licensed.
+MIT
+
+## 🤝 Support
+
+Có vấn đề? Mở issue trên GitHub repository.
+
+---
+
+**Last Updated**: December 2025  
+**Version**: 1.0.0  
+**Port**: 3002
