@@ -44,8 +44,8 @@ services:
     ports:
       - "8000:8000" # Proxy port
       - "8443:8443" # Proxy SSL port
-      - "8001:8001" # Admin port
-      - "8444:8444" # Admin SSL port
+      - "18001:8001" # Admin port
+      - "18444:8444" # Admin SSL port
     depends_on:
       - auth-db
       - user-db
