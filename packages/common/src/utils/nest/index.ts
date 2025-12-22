@@ -42,8 +42,10 @@ export async function setupBootstrap(
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
+  app.setGlobalPrefix("api");
+
   const appName = getConfig<string>("appName");
-  const swaggerPath = options.swaggerPath ?? `/api/${appName}/docs`;
+  const swaggerPath = options.swaggerPath ?? `/${appName}/docs`;
   setupSwagger(app, appName, serverUrls, {
     swaggerTitle: options.swaggerTitle ?? `${appName} Documentation Swagger`,
     swaggerDescription: options.swaggerDescription ?? `${appName} Description`,
