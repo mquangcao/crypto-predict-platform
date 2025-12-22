@@ -117,7 +117,7 @@ export function LoginForm() {
         <p className="text-sm text-slate-500">
           Don&apos;t have an account?
           <Link
-            href="/auth/register"
+            href="/register"
             className="font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors ml-1"
           >
             Sign up for free

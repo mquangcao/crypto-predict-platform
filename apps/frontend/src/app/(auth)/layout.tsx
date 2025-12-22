@@ -11,23 +11,22 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-pink-100/60 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
 
-      <div className="flex-grow flex items-center justify-center p-4 sm:p-6 relative z-10">
+      <div className="grow flex items-center justify-center p-4 sm:p-6 relative z-10">
         {/* Main Card with the distinct double-border effect */}
         <div className="relative w-full max-w-5xl group">
           {/* Subtle outer glow/border */}
-          <div className="absolute -inset-1.5 bg-gradient-to-tr from-blue-500/15 via-indigo-500/5 to-purple-500/15 rounded-[2.6rem] blur-sm opacity-60"></div>
+          <div className="absolute -inset-1.5 bg-linear-to-tr from-blue-500/15 via-indigo-500/5 to-purple-500/15 rounded-[2.6rem] blur-sm opacity-60"></div>
 
           <div className="relative w-full bg-white/90 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.1)] border border-slate-200/60 overflow-hidden grid lg:grid-cols-5">
             {/* Left Column - Visuals with VIBRANT gradient and blooms */}
             <div className="hidden lg:flex lg:col-span-2 bg-slate-50/50 relative overflow-hidden flex-col items-center justify-center p-12 border-r border-slate-100">
               {/* VIBRANT GRADIENT BASE */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-100/40 via-indigo-50/40 to-white"></div>
+              <div className="absolute inset-0 bg-linear-to-br from-blue-100/40 via-indigo-50/40 to-white"></div>
 
-              {/* INNER BLOOMS fofr more "col-bot" / "khac-biet" feeling */}
               <div className="absolute top-0 right-0 w-80 h-80 bg-blue-300/20 rounded-full blur-3xl mix-blend-multiply animate-blob"></div>
               <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-300/20 rounded-full blur-3xl mix-blend-multiply animate-blob animation-delay-2000"></div>
 
-              <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+              <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-size-[40px_40px]"></div>
 
               <div className="relative w-full max-w-[340px] perspective-1000 z-10">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] border border-slate-200/40 rounded-full opacity-40"></div>
