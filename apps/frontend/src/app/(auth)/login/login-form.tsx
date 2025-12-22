@@ -25,7 +25,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onSuccess, className }: LoginFormProps) {
-  const { setIsAuthenticated } = useAuth();
+  const { setIsAuthenticated, refreshUser } = useAuth();
   const { mutate: login, isPending } = useLogin();
 
   const form = useForm<LoginFormValues>({
@@ -48,6 +48,7 @@ export function LoginForm({ onSuccess, className }: LoginFormProps) {
     login({ variables } as any, {
       onSuccess: () => {
         setIsAuthenticated(true);
+        refreshUser();
         onSuccess?.();
       },
     });

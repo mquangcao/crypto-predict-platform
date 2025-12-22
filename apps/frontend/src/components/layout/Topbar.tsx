@@ -1,6 +1,10 @@
 "use client";
 
+import { useAuth } from "@/hooks";
+
 export function Topbar() {
+  const { user, logout } = useAuth();
+
   return (
     <header className="h-16 border-b border-slate-800 flex items-center justify-between px-4 md:px-6 bg-slate-950/80 backdrop-blur">
       <div className="flex items-center gap-3">
@@ -14,8 +18,13 @@ export function Topbar() {
         </div>
       </div>
       <div className="flex items-center gap-2 text-sm">
-        <span className="text-slate-400 hidden sm:inline">Xin chào, User</span>
-        <button className="rounded-lg border border-slate-700 px-3 py-1 text-xs text-slate-200 hover:bg-slate-800">
+        <span className="text-slate-400 hidden sm:inline">
+          Xin chào, {user?.fullName || "User"}
+        </span>
+        <button
+          onClick={() => logout()}
+          className="rounded-lg border border-slate-700 px-3 py-1 text-xs text-slate-200 hover:bg-slate-800"
+        >
           Đăng xuất
         </button>
       </div>

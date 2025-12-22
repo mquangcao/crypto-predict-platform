@@ -34,7 +34,7 @@ interface RegisterFormProps {
 }
 
 export function RegisterForm({ onSuccess, className }: RegisterFormProps) {
-  const { setIsAuthenticated } = useAuth();
+  const { setIsAuthenticated, refreshUser } = useAuth();
   const { mutate: register, isPending } = useRegister();
 
   const form = useForm<RegisterFormValues>({
@@ -59,6 +59,7 @@ export function RegisterForm({ onSuccess, className }: RegisterFormProps) {
       {
         onSuccess: () => {
           setIsAuthenticated(true);
+          refreshUser();
           onSuccess?.();
         },
       }

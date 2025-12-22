@@ -10,6 +10,7 @@ interface AuthContextValues {
   isInitialized: boolean;
   user: User | null;
   setIsAuthenticated: (isAuthenticated: boolean) => void;
+  refreshUser: () => Promise<void>;
   logout: (options?: {
     onSuccess?: () => void;
     onError?: (err: any) => void;
@@ -36,6 +37,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const { mutate: logout } = useLogoutWithRefreshToken();
 
+  const refreshUser = async () => {
+    try {
+      const fetchedUser = await getAccountInfo();
+      setUser(fetchedUser);
+    } catch (error) {
+      console.error("Failed to refresh user:", error);
+    }
+  };
+
   useEffect(() => {
     loadAccessToken();
 
@@ -54,6 +64,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isInitialized,
       user,
       setIsAuthenticated,
+      refreshUser,
       logout: (options?: {
         onSuccess?: () => void;
         onError?: (err: unknown) => void;
@@ -62,23 +73,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
           logout({
             onSuccess: () => {
               setIsAuthenticated(false);
-              window.location.assign("/auth/login");
+              setUser(null);
+              window.location.assign("/login");
               options?.onSuccess?.();
             },
             onError: (err: unknown) => {
               setIsAuthenticated(false);
-              window.location.assign("/auth/login");
+              setUser(null);
+              window.location.assign("/login");
               options?.onError?.(err);
             },
           });
         } catch (err: unknown) {
           setIsAuthenticated(false);
-          window.location.assign("/auth/login");
+          setUser(null);
+          window.location.assign("/login");
           options?.onError?.(err);
         }
       },
     }),
-    [isAuthenticated, isInitialized, logout]
+    [isAuthenticated, isInitialized, logout, user, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
