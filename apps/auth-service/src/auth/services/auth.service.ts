@@ -84,8 +84,8 @@ export class AuthService {
     await this.refreshTokenRepository.delete({ userId });
   }
 
-  async register(dto: RegisterRequestDto): Promise<void> {
-    await this.gatewayService.runOperation({
+  async register(dto: RegisterRequestDto): Promise<LoginResponseDto> {
+    const user = await this.gatewayService.runOperation({
       serviceId: SERVICE.USER,
       operationId: USER_OPERATION.CREATE_USER,
       payload: {
@@ -96,5 +96,7 @@ export class AuthService {
         role: UserRole.BASIC,
       },
     });
+
+    return this.login({ id: (user as any).id, role: (user as any).role });
   }
 }

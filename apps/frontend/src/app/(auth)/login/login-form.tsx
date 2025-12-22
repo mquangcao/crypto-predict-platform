@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
-import { toast } from "sonner";
 import { FormProvider, TextInput, PasswordInput } from "@/components/forms";
 import { SubmitButton } from "@/components/buttons";
 import { SocialLoginButtons, socialData } from "./social-login-buttons";
@@ -50,7 +49,6 @@ export function LoginForm({ onSuccess, className }: LoginFormProps) {
       onSuccess: () => {
         setIsAuthenticated(true);
         onSuccess?.();
-        toast.success("Logged in successfully");
       },
     });
   });
