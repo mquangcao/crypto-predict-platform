@@ -1,59 +1,58 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
-import axios from "axios";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { FormProvider, TextInput, PasswordInput } from "@/components/forms";
 import { SubmitButton } from "@/components/buttons";
 import { SocialLoginButtons, socialData } from "./social-login-buttons";
+import { useAuth, useLogin } from "@/hooks";
+import { setRememberMe } from "@/api/axios";
 
 // Simple form schema
 const LoginFormSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(1, "Password is required"),
+  remember: z.boolean().optional(),
 });
 
 type LoginFormValues = z.infer<typeof LoginFormSchema>;
 
-export function LoginForm() {
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
+interface LoginFormProps {
+  onSuccess?: () => void;
+  className?: string;
+}
+
+export function LoginForm({ onSuccess, className }: LoginFormProps) {
+  const { setIsAuthenticated } = useAuth();
+  const { mutate: login, isPending } = useLogin();
+
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
       email: "user@example.com",
       password: "password123",
+      remember: true,
     },
   });
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    setLoading(true);
-    try {
-      const response = await axios.post("http://localhost:4001/auth/login", {
-        username: data.email,
-        password: data.password,
-      });
+    const variables = {
+      username: data.email,
+      password: data.password,
+    };
 
-      if (response.data.statusCode === 201) {
-        // Save tokens to localStorage
-        localStorage.setItem("access_token", response.data.data.access_token);
-        localStorage.setItem("refresh_token", response.data.data.refresh_token);
+    setRememberMe(!!data.remember);
 
-        toast.success("Login successful!");
-        router.push("/"); // Redirect to dashboard
-      }
-    } catch (error: any) {
-      console.error("Login error:", error);
-      const message = error.response?.data?.message || "Login failed";
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
+    login({ variables } as any, {
+      onSuccess: () => {
+        setIsAuthenticated(true);
+        onSuccess?.();
+        toast.success("Logged in successfully");
+      },
+    });
   });
 
   const handleSocialLogin = (provider: "google" | "keycloak") => {
@@ -61,7 +60,7 @@ export function LoginForm() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${className}`}>
       <FormProvider form={form} onSubmit={handleSubmit} className="space-y-5">
         <TextInput
           name="email"
@@ -89,7 +88,7 @@ export function LoginForm() {
         />
 
         <SubmitButton
-          isLoading={loading}
+          isLoading={isPending}
           className="group w-full flex justify-center items-center py-7! px-4 rounded-xl shadow-lg shadow-blue-500/30 text-sm font-bold text-white bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
         >
           Log In
@@ -110,7 +109,7 @@ export function LoginForm() {
       <SocialLoginButtons
         providers={socialData}
         onSocialLogin={handleSocialLogin}
-        disabled={loading}
+        disabled={isPending}
       />
 
       <div className="mt-8 text-center">
