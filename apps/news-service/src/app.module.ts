@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { NewsModule } from './news/news.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
-import { NewsEntity } from './news/entities/news.entity';
+import { NewsArticle } from './news/entities/news-article.entity';
 
 @Module({
   imports: [
@@ -12,7 +12,7 @@ import { NewsEntity } from './news/entities/news.entity';
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'news.db',
-      entities: [NewsEntity],
+      entities: [NewsArticle],
       synchronize: true, // Auto create tables
     }),
     NewsModule,

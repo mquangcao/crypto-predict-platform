@@ -1,52 +1,73 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { CryptoCompareService } from './cryptocompare.service';
-import { NewsRepository } from './news.repository';
-import { NewsItemDto } from './dto/news.dto';
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
+import { NewsArticle } from './entities/news-article.entity';
+import { CryptoCompareService } from './providers/cryptocompare.service';
+import { CreateNewsDto } from './dto/create-news.dto';
+import { NewsCrawler } from './interfaces/news-crawler.interface';
+
 @Injectable()
-export class NewsService implements OnModuleInit {
+export class NewsService {
   private readonly logger = new Logger(NewsService.name);
 
   constructor(
+    @InjectRepository(NewsArticle)
+    private readonly newsRepo: Repository<NewsArticle>,
     private readonly cryptoCompareService: CryptoCompareService,
-    private readonly newsRepository: NewsRepository,
   ) {}
 
-  async onModuleInit() {
-    // Fetch ngay khi khởi động
-    this.logger.log('Fetching initial news...');
-    await this.fetchAndSaveNews();
+  // --- WORKFLOW STEP 1: CRAWL & SAVE ---
+
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  async handleCron() {
+    this.logger.log('⏰ Cron Job Started: Syncing News...');
+    await this.syncFromSource(this.cryptoCompareService);
+    this.logger.log('✅ Cron Job Finished.');
   }
 
-  @Cron('0 */30 * * * *') // Mỗi 30 phút
-  async scheduledFetchNews() {
-    this.logger.log('Scheduled fetch news triggered');
-    await this.fetchAndSaveNews();
-  }
+  async syncFromSource(crawler: NewsCrawler) {
+    const articles = await crawler.fetchNews();
+    if (articles.length === 0) return;
 
-  private async fetchAndSaveNews() {
-    try {
-      // Fetch news từ CryptoCompare (scrape hoặc API)
-      const news = await this.cryptoCompareService.getNews('EN');
-      
-      // Lưu vào database
-      await this.newsRepository.saveNews(news, 'cryptocompare');
-      
-      this.logger.log(`Successfully fetched and saved ${news.length} news items`);
-    } catch (error) {
-      this.logger.error('Error in fetchAndSaveNews:', error.message);
+    let savedCount = 0;
+    let skipCount = 0;
+
+    for (const articleDto of articles) {
+      // Check trùng lặp nhanh bằng ID (Index Scan)
+      const exists = await this.newsRepo.findOne({
+        where: { 
+          source: articleDto.source, 
+          externalId: articleDto.externalId 
+        },
+        select: ['id'], 
+      });
+
+      if (!exists) {
+        const newArticle = this.newsRepo.create(articleDto);
+        await this.newsRepo.save(newArticle);
+        savedCount++;
+      } else {
+        skipCount++;
+      }
     }
+
+    this.logger.log(
+      `📊 [${crawler.sourceName}] Result: ${savedCount} new saved, ${skipCount} duplicates skipped.`
+    );
   }
 
-  async getLatestNews(page: number = 1, limit: number = 10): Promise<{ data: NewsItemDto[], total: number, page: number, totalPages: number }> {
-    return this.newsRepository.getNewsPaginated(page, limit);
+  // --- PUBLIC API METHODS ---
+
+  async findAll() {
+    return this.newsRepo.find({
+      order: { publishedAt: 'DESC' },
+      take: 50,
+    });
   }
 
-  async getNewsBySentiment(sentiment: 'positive' | 'negative' | 'neutral', page: number = 1, limit: number = 10) {
-    // Map từ frontend format sang DB format
-    const dbSentiment = sentiment === 'positive' ? 'bullish' : 
-                        sentiment === 'negative' ? 'bearish' : 'neutral';
-    return this.newsRepository.getNewsBySentimentPaginated(dbSentiment, page, limit);
+  async findOne(id: string) {
+    return this.newsRepo.findOne({ where: { id } });
   }
 }

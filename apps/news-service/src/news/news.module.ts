@@ -1,24 +1,23 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { HttpModule } from '@nestjs/axios';
+import { ScheduleModule } from '@nestjs/schedule';
+
 import { NewsController } from './news.controller';
 import { NewsService } from './news.service';
-import { CryptoCompareService } from './cryptocompare.service';
-import { CryptoCompareScraperService } from './cryptocompare-scraper.service';
-import { NewsRepository } from './news.repository';
-import { HttpModule } from '@nestjs/axios';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { NewsEntity } from './entities/news.entity';
+import { NewsArticle } from './entities/news-article.entity';
+import { CryptoCompareService } from './providers/cryptocompare.service';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([NewsArticle]), 
     HttpModule,
-    TypeOrmModule.forFeature([NewsEntity]),
+    ScheduleModule.forRoot(),
   ],
   controllers: [NewsController],
   providers: [
-    NewsService, 
+    NewsService,
     CryptoCompareService,
-    CryptoCompareScraperService,
-    NewsRepository,
   ],
   exports: [NewsService],
 })
