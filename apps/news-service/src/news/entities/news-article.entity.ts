@@ -1,11 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Index } from 'typeorm';
+import { BaseEntity } from '@app/common';
+import { Entity, Column, Index } from 'typeorm';
 
 @Entity('news_article')
-@Index(['source', 'externalId'], { unique: true }) // Quan trọng: Chống trùng lặp
-export class NewsArticle {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+@Index(['source', 'externalId'], { unique: true })
+export class NewsArticle extends BaseEntity {
   @Column()
   source: string; // cryptocompare, coindesk...
 
@@ -32,7 +30,4 @@ export class NewsArticle {
 
   @Column({ type: 'jsonb', nullable: true })
   raw?: any;
-
-  @CreateDateColumn()
-  createdAt: Date;
 }

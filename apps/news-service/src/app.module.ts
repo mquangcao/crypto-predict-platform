@@ -1,23 +1,17 @@
+import { getConfig } from '@app/common';
+import { CoreModule } from '@app/core';
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { NewsModule } from './news/news.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
-import { NewsArticle } from './news/entities/news-article.entity';
+
+import { DatabaseModule } from './database/database.module';
+import { NewsModule } from './news/news.module';
 
 @Module({
   imports: [
+    CoreModule.forRoot(),
     ScheduleModule.forRoot(),
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'news.db',
-      entities: [NewsArticle],
-      synchronize: true, // Auto create tables
-    }),
+    DatabaseModule,
     NewsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

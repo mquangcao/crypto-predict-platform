@@ -3,10 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
-import { NewsArticle } from './entities/news-article.entity';
-import { CryptoCompareService } from './providers/cryptocompare.service';
-import { CreateNewsDto } from './dto/create-news.dto';
-import { NewsCrawler } from './interfaces/news-crawler.interface';
+import { NewsArticle } from '../entities/news-article.entity';
+import { CryptoCompareService } from '../providers/cryptocompare.service';
+import { CreateNewsDto } from '../dto/create-news.dto';
+import { NewsCrawler } from '../interfaces/news-crawler.interface';
 
 @Injectable()
 export class NewsService {
@@ -60,14 +60,23 @@ export class NewsService {
 
   // --- PUBLIC API METHODS ---
 
-  async findAll() {
+  async findAll(limit: number = 50) {
     return this.newsRepo.find({
       order: { publishedAt: 'DESC' },
-      take: 50,
+      take: limit,
     });
   }
 
   async findOne(id: string) {
     return this.newsRepo.findOne({ where: { id } });
+  }
+
+  async findBySymbol(symbol: string, limit: number = 50) {
+    return this.newsRepo
+      .createQueryBuilder('news')
+      .where(':symbol = ANY(news.symbols)', { symbol: symbol.toUpperCase() })
+      .orderBy('news.publishedAt', 'DESC')
+      .take(limit)
+      .getMany();
   }
 }
