@@ -5,9 +5,9 @@ import {
   ResponseBuilder, 
   ApiResponseDto, 
   Public, 
-  UserSession, 
-  TokenPayload 
+  UserSession
 } from '@app/common';
+import type { TokenPayload } from '@app/common';
 import { JwtAuthGuard } from '@app/core';
 
 import { NewsService } from '../services/news.service';
