@@ -21,11 +21,20 @@
     "dev": "nest start --watch"
   },
   "dependencies": {
+    "@app/common": "^1.0.0",
+    "@app/core": "^1.0.0",
+    "@aws-sdk/client-sqs": "^3.966.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/schedule": "^6.1.0",
+    "@nestjs/typeorm": "^11.0.0",
+    "config": "^4.1.1",
+    "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "sentiment": "^5.0.2",
+    "typeorm": "^0.3.28"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

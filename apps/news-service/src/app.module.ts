@@ -1,10 +1,17 @@
+import { getConfig } from '@app/common';
+import { CoreModule } from '@app/core';
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ScheduleModule } from '@nestjs/schedule';
+
+import { DatabaseModule } from './database/database.module';
+import { NewsModule } from './news/news.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    CoreModule.forRoot(),
+    ScheduleModule.forRoot(),
+    DatabaseModule,
+    NewsModule,
+  ],
 })
 export class AppModule {}
