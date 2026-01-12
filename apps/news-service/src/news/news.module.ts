@@ -6,8 +6,14 @@ import { GatewayModule } from '@app/core';
 
 import { NewsController } from './controllers/news.controller';
 import { NewsService } from './services/news.service';
+import { ImpactSchedulerService } from './services/impact-scheduler.service';
+import { SentimentQueueService } from './services/sentiment-queue.service';
 import { NewsArticle } from './entities/news-article.entity';
 import { CryptoCompareService } from './providers/cryptocompare.service';
+import { 
+  AwsSchedulerClientProvider,
+  AwsSqsClientProvider 
+} from './providers/aws-clients.provider';
 import {
   GetLatestNewsHandler,
   GetNewsBySymbolHandler,
@@ -29,7 +35,15 @@ const CommandHandlers = [
     HttpModule,
   ],
   controllers: [NewsController],
-  providers: [NewsService, CryptoCompareService, ...CommandHandlers],
+  providers: [
+    AwsSchedulerClientProvider,
+    AwsSqsClientProvider,
+    NewsService, 
+    ImpactSchedulerService,
+    SentimentQueueService,
+    CryptoCompareService, 
+    ...CommandHandlers
+  ],
   exports: [NewsService],
 })
 export class NewsModule {}

@@ -7,6 +7,8 @@ import { NewsArticle } from '../entities/news-article.entity';
 import { CryptoCompareService } from '../providers/cryptocompare.service';
 import { CreateNewsDto } from '../dto/create-news.dto';
 import { NewsCrawler } from '../interfaces/news-crawler.interface';
+import { ImpactSchedulerService } from './impact-scheduler.service';
+import { SentimentQueueService } from './sentiment-queue.service';
 
 @Injectable()
 export class NewsService {
@@ -16,6 +18,8 @@ export class NewsService {
     @InjectRepository(NewsArticle)
     private readonly newsRepo: Repository<NewsArticle>,
     private readonly cryptoCompareService: CryptoCompareService,
+    private readonly impactSchedulerService: ImpactSchedulerService,
+    private readonly sentimentQueueService: SentimentQueueService,
   ) {}
 
   // --- WORKFLOW STEP 1: CRAWL & SAVE ---
@@ -46,8 +50,27 @@ export class NewsService {
 
       if (!exists) {
         const newArticle = this.newsRepo.create(articleDto);
-        await this.newsRepo.save(newArticle);
+        const savedArticle = await this.newsRepo.save(newArticle);
         savedCount++;
+
+        // 🔥 TẠO LỊCH HẸN CHO EVENTBRIDGE
+        try {
+          await this.impactSchedulerService.scheduleAllTimeframes(savedArticle.id);
+          this.logger.log(`📅 Scheduled impact analysis for article ${savedArticle.id}`);
+        } catch (error) {
+          this.logger.error(`Failed to schedule impact for article ${savedArticle.id}`, error);
+        }
+
+        // 🔥 GỬI MESSAGE TỚI SENTIMENT QUEUE
+        try {
+          await this.sentimentQueueService.sendNewsForAnalysis(
+            savedArticle.id,
+            savedArticle.title,
+            savedArticle.content
+          );
+        } catch (error) {
+          this.logger.error(`Failed to send article ${savedArticle.id} to sentiment queue`, error);
+        }
       } else {
         skipCount++;
       }

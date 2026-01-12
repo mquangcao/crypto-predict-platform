@@ -2,7 +2,6 @@ require('dotenv').config();
 
 const number = name => ({ __name: name, __format: 'number' });
 const boolean = name => ({ __name: name, __format: 'boolean' });
-const json = name => ({ __name: name, __format: 'json' });
 
 module.exports = {
   port: number('PORT'),
@@ -16,23 +15,18 @@ module.exports = {
     dbName: 'DATABASE_DB_NAME',
     synchronize: boolean('DATABASE_SYNCHRONIZE'),
   },
-  news: {
-    sources: {
-      cryptocompare: {
-        apiKey: 'CRYPTOCOMPARE_API_KEY',
-      },
-    },
-  },
   aws: {
     region: 'AWS_REGION',
     accessKeyId: 'AWS_ACCESS_KEY_ID',
     secretAccessKey: 'AWS_SECRET_ACCESS_KEY',
     sqs: {
-      impactQueueArn: 'SQS_IMPACT_QUEUE_ARN',
       sentimentQueueUrl: 'SQS_SENTIMENT_QUEUE_URL',
+      maxMessages: number('SQS_MAX_MESSAGES'),
+      waitTimeSeconds: number('SQS_WAIT_TIME_SECONDS'),
+      visibilityTimeout: number('SQS_VISIBILITY_TIMEOUT'),
     },
-    eventBridge: {
-      roleArn: 'EVENTBRIDGE_ROLE_ARN',
-    },
+  },
+  sentiment: {
+    model: 'SENTIMENT_MODEL',
   },
 };
