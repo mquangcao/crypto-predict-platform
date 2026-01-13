@@ -4,14 +4,10 @@ import {
   OnModuleInit,
   OnModuleDestroy,
 } from '@nestjs/common';
+import { getConfig } from '@app/common';
 import WebSocket from 'ws';
 import { EventEmitter } from 'events';
-
-export interface PriceUpdate {
-  symbol: string;
-  price: number;
-  ts: number;
-}
+import { PriceUpdate } from '../interfaces/market-service.interface';
 
 /**
  * Service kết nối tới Binance WebSocket và emit event "price"
@@ -21,9 +17,13 @@ export class BinanceStreamService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(BinanceStreamService.name);
   private ws: WebSocket | null = null;
   private readonly emitter = new EventEmitter();
+  private readonly wsUrl: string;
+  private readonly symbols: string[];
 
-  // các symbol muốn stream realtime
-  private readonly symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT'];
+  constructor() {
+    this.wsUrl = getConfig('market.binance.wsUrl');
+    this.symbols = getConfig('market.binance.symbols');
+  }
 
   onModuleInit() {
     this.connect();
@@ -37,7 +37,7 @@ export class BinanceStreamService implements OnModuleInit, OnModuleDestroy {
     const streams = this.symbols
       .map((s) => s.toLowerCase() + '@trade')
       .join('/');
-    const url = `wss://stream.binance.com:9443/stream?streams=${streams}`;
+    const url = `${this.wsUrl}?streams=${streams}`;
 
     this.logger.log(`Connecting to Binance WS: ${url}`);
     this.ws = new WebSocket(url);

@@ -1,17 +1,26 @@
 import { Module } from '@nestjs/common';
-import { MarketService } from './market.service';
-import { MarketController } from './market.controller';
-import { BinanceStreamService } from '../binance-stream.service';
-import { PriceStreamGateway } from '../price-stream.gateway';
+import { CqrsModule } from '@nestjs/cqrs';
+import { GatewayModule } from '@app/core';
+
+import { MarketService } from './services/market.service';
+import { MarketController } from './controllers/market.controller';
+import { BinanceStreamService } from './services/binance-stream.service';
+import { PriceStreamGateway } from './gateways/price-stream.gateway';
+import { CommandHandlers } from './commands/handlers';
+import { OperationsMap } from './commands/impl';
 
 @Module({
-  imports: [],
+  imports: [
+    CqrsModule,
+    GatewayModule.forFeature(OperationsMap),
+  ],
   controllers: [MarketController],
   providers: [
     MarketService,
-    BinanceStreamService,  // ✅ provider cho gateway
-    PriceStreamGateway,    // ✅ gateway cũng là provider
+    BinanceStreamService,
+    PriceStreamGateway,
+    ...CommandHandlers,
   ],
-  exports: [BinanceStreamService], // optional, nhưng không hại
+  exports: [MarketService, BinanceStreamService],
 })
 export class MarketModule {}

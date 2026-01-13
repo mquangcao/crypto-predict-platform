@@ -1,23 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
-
-export type Timeframe = '1m' | '5m' | '1h' | '1d';
-
-export interface Candle {
-  time: number; // unix seconds
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-}
-
-export interface SymbolInfo {
-  symbol: string;
-  description: string;
-  baseAsset: string;
-  quoteAsset: string;
-}
+import {
+  Timeframe,
+  Candle,
+  SymbolInfo,
+  CurrentPrice,
+} from '../interfaces/market-service.interface';
 
 @Injectable()
 export class MarketService {
@@ -87,6 +75,28 @@ export class MarketService {
     } catch (error: any) {
       this.logger.error(
         `Error fetching klines from Binance for ${symbol} ${timeframe}`,
+        error?.message,
+      );
+      throw error;
+    }
+  }
+
+  async getCurrentPrice(symbol: string): Promise<CurrentPrice> {
+    const url = `${this.BINANCE_BASE_URL}/api/v3/ticker/price`;
+
+    try {
+      const res = await axios.get(url, {
+        params: { symbol },
+        timeout: 5000,
+      });
+
+      return {
+        symbol: res.data.symbol,
+        price: parseFloat(res.data.price),
+      };
+    } catch (error: any) {
+      this.logger.error(
+        `Error fetching current price from Binance for ${symbol}`,
         error?.message,
       );
       throw error;
