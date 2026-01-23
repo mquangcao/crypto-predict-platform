@@ -31,16 +31,14 @@ export class OpenIdController {
   async googleAuth(@Request() req, @Res() res: Response) {
     // Encode redirect_uri into state parameter
     const redirectUri = req.query.redirect_uri;
-    console.log("check", redirectUri);
     const state = redirectUri
       ? Buffer.from(JSON.stringify({ redirect_uri: redirectUri })).toString('base64')
       : undefined;
 
     const googleAuthUrl = getConfig<string>('auth.openid.google.clientId');
-    const callbackUrl = `${req.protocol}://${req.get('host')}/api/auth/google/callback`;
+    const callbackUrl = getConfig<string>('auth.openid.google.callbackUrl');
     const baseUrl = `https://accounts.google.com/o/oauth2/v2/auth`;
 
-    console.log("check", googleAuthUrl, callbackUrl);
     const params = new URLSearchParams({
       client_id: googleAuthUrl,
       redirect_uri: callbackUrl,

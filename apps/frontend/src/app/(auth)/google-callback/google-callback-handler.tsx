@@ -29,6 +29,7 @@ export function GoogleCallbackHandler() {
 
     exchangeCode({ variables: { code } } as any, {
       onSuccess: () => {
+        console.log("hahahah");
         setIsAuthenticated(true);
       },
     });

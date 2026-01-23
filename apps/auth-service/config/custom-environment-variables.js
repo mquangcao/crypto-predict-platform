@@ -27,6 +27,7 @@ module.exports = {
       google: {
         clientId: 'AUTH_OPENID_GOOGLE_CLIENT_ID',
         clientSecret: 'AUTH_OPENID_GOOGLE_CLIENT_SECRET',
+        callbackUrl: 'AUTH_OPENID_GOOGLE_CALLBACK_URL',
       },
     }
   },

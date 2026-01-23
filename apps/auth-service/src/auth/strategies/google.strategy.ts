@@ -10,7 +10,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     super({
       clientID: getConfig<string>('auth.openid.google.clientId'),
       clientSecret: getConfig<string>('auth.openid.google.clientSecret'),
-      callbackURL: "http://localhost:4001/api/auth/google/callback",
+      callbackURL: getConfig<string>('auth.openid.google.callbackUrl'),
       scope: ['email', 'profile'],
       passReqToCallback: true,
     });
@@ -24,7 +24,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: VerifyCallback,
   ): Promise<any> {
     const { id, name, emails, photos } = profile;
-console.log("ok");
+
     // Get redirect_uri from state parameter
     let redirectUri: string | undefined;
     try {
@@ -45,7 +45,7 @@ console.log("ok");
       accessToken,
       redirectUri,
     };
-    console.log("ok");
+    
     done(null, user);
   }
 }

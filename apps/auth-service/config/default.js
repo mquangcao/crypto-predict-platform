@@ -22,6 +22,7 @@ module.exports = {
       google: {
         clientId: 'your-google-client-id',
         clientSecret: 'your-google-client-secret',
+        callbackUrl: 'http://localhost:8000/api/auth/google/callback',
       },
     }
   },
