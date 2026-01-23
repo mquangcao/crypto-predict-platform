@@ -16,10 +16,19 @@ module.exports = {
     dbName: 'DATABASE_DB_NAME',
     synchronize: boolean('DATABASE_SYNCHRONIZE'),
   },
-  token: {
-    expiresIn: number('TOKEN_EXPIRES_IN'),
-    refreshExpiresIn: number('TOKEN_REFRESH_EXPIRES_IN'),
-    secret: 'TOKEN_SECRET',
+  
+  auth: {
+    token: {
+      expiresIn: number('AUTH_TOKEN_EXPIRES_IN'),
+      refreshExpiresIn: number('AUTH_TOKEN_REFRESH_EXPIRES_IN'),
+      secret: 'AUTH_TOKEN_SECRET',
+    },
+    openid: {
+      google: {
+        clientId: 'AUTH_OPENID_GOOGLE_CLIENT_ID',
+        clientSecret: 'AUTH_OPENID_GOOGLE_CLIENT_SECRET',
+      },
+    }
   },
   core: {
     gateway: {

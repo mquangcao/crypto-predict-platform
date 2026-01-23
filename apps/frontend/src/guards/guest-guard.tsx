@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LoadingScreen } from "@/components/loading-screen";
 import { app } from "@/config";
@@ -14,7 +14,7 @@ function getRedirectPath(searchParams: URLSearchParams | null) {
   return searchParams?.get(app.redirectQueryParamName) ?? "/";
 }
 
-export function GuestGuard({ children }: GuestGuardProps) {
+function GuestGuardContent({ children }: GuestGuardProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated, isInitialized } = useAuth();
@@ -35,4 +35,12 @@ export function GuestGuard({ children }: GuestGuardProps) {
   }
 
   return children;
+}
+
+export function GuestGuard({ children }: GuestGuardProps) {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <GuestGuardContent>{children}</GuestGuardContent>
+    </Suspense>
+  );
 }

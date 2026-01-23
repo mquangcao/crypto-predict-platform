@@ -13,7 +13,7 @@ export const LoginRequestSchema = z
       }
       return true;
     },
-    { message: "Password is required when username or email is provided" }
+    { message: "Password is required when username or email is provided" },
   );
 
 export const TokenRoleSchema = z.enum(["ADMIN", "BASIC", "GUEST"]);
@@ -24,7 +24,7 @@ export const LoginResponseSchema = BaseResponseSchema(
     refresh_token: z.string(),
     token_role: TokenRoleSchema,
     expires_in: z.number(),
-  })
+  }),
 );
 
 export const RefreshTokenRequestSchema = z.object({
@@ -39,9 +39,16 @@ export const RegisterRequestSchema = z.object({
   fullName: z.string().min(1),
 });
 
+export const ExchangeOAuthCodeRequestSchema = z.object({
+  code: z.string(),
+});
+
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
 export type LoginResponse = z.infer<typeof LoginResponseSchema>;
 export type RefreshTokenRequest = z.infer<typeof RefreshTokenRequestSchema>;
 export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;
 export type TokenRole = z.infer<typeof TokenRoleSchema>;
 export type UserRole = z.infer<typeof UserRoleSchema>;
+export type ExchangeOAuthCodeRequest = z.infer<
+  typeof ExchangeOAuthCodeRequestSchema
+>;

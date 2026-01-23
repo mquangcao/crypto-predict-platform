@@ -1,6 +1,7 @@
 export const USER_OPERATION = {
   FIND_USER_BY_IDENTIFIER: "find-user-by-identifier",
   CREATE_USER: "create-user",
+  FIND_USER_BY_ID: "find-user-by-id",
 };
 
 export const AUTH_OPERATION = {
