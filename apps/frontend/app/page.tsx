@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Sidebar } from "../components/layout/Sidebar";
-import { Topbar } from "../components/layout/Topbar";
-import { SymbolSelector } from "../components/market/SymbolSelector";
-import { TimeframeSelector } from "../components/market/TimeframeSelector";
-import { PriceSummary } from "../components/market/PriceSummary";
-import { PriceChart } from "../components/market/PriceChart";
-import { NewsList } from "../components/news/NewsList";
-import { AiInsightPanel } from "../components/ai/AiInsightPanel";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Topbar } from "@/components/layout/Topbar";
+import { SymbolSelector } from "@/components/market/SymbolSelector";
+import { TimeframeSelector } from "@/components/market/TimeframeSelector";
+import { PriceSummary } from "@/components/market/PriceSummary";
+import { PriceChart } from "@/components/market/PriceChart";
+import { NewsList } from "@/components/news/NewsList";
+import { AiInsightPanel } from "@/components/ai/AiInsightPanel";
 
 export type Timeframe = "1m" | "5m" | "1h" | "1d";
 

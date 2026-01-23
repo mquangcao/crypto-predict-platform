@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sidebar } from "../../components/layout/Sidebar";
-import { Topbar } from "../../components/layout/Topbar";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Topbar } from "@/components/layout/Topbar";
 
 interface NewsItem {
   id: string;
@@ -38,9 +38,11 @@ export default function NewsPage() {
   const fetchNews = async (pageNum: number) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3002/news?page=${pageNum}&limit=10`);
+      const response = await fetch(
+        `http://localhost:3002/news?page=${pageNum}&limit=10`,
+      );
       const data: NewsResponse = await response.json();
-      
+
       if (data.data && Array.isArray(data.data)) {
         setNews(data.data);
         setTotalPages(data.totalPages);
@@ -82,7 +84,7 @@ export default function NewsPage() {
       <Sidebar />
       <main className="flex-1 flex flex-col">
         <Topbar />
-        
+
         <div className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-6xl mx-auto">
             {/* Header */}
@@ -115,12 +117,18 @@ export default function NewsPage() {
                     <article
                       key={item.id}
                       className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:bg-slate-900/80 transition-all cursor-pointer hover:border-indigo-500/50"
-                      onClick={() => item.url && window.open(item.url, "_blank")}
+                      onClick={() =>
+                        item.url && window.open(item.url, "_blank")
+                      }
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <span className="text-sm text-slate-400">{item.source}</span>
-                          <span className="text-xs text-slate-500">{item.time}</span>
+                          <span className="text-sm text-slate-400">
+                            {item.source}
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            {item.time}
+                          </span>
                         </div>
                         <span
                           className={
@@ -131,17 +139,17 @@ export default function NewsPage() {
                           {item.sentiment}
                         </span>
                       </div>
-                      
+
                       <h2 className="text-lg font-semibold text-white mb-2 leading-relaxed">
                         {item.title}
                       </h2>
-                      
+
                       {item.body && (
                         <p className="text-sm text-slate-400 line-clamp-2">
                           {item.body}
                         </p>
                       )}
-                      
+
                       <div className="mt-4 flex items-center text-xs text-indigo-400 hover:text-indigo-300">
                         <span>Đọc thêm →</span>
                       </div>
@@ -158,19 +166,13 @@ export default function NewsPage() {
                   >
                     ← Trang trước
                   </button>
-                  
+
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-400">
-                      Trang
-                    </span>
-                    <span className="text-white font-semibold">
-                      {page}
-                    </span>
-                    <span className="text-slate-400">
-                      / {totalPages}
-                    </span>
+                    <span className="text-slate-400">Trang</span>
+                    <span className="text-white font-semibold">{page}</span>
+                    <span className="text-slate-400">/ {totalPages}</span>
                   </div>
-                  
+
                   <button
                     onClick={handleNextPage}
                     disabled={page === totalPages}
@@ -185,9 +187,7 @@ export default function NewsPage() {
             {/* Empty State */}
             {!loading && news.length === 0 && (
               <div className="text-center py-20">
-                <p className="text-slate-400 text-lg">
-                  Chưa có tin tức nào
-                </p>
+                <p className="text-slate-400 text-lg">Chưa có tin tức nào</p>
               </div>
             )}
           </div>
