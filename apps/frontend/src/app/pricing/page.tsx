@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, ArrowRight, Minus } from "lucide-react";
+import { Check, ArrowRight, Minus, Shield, Zap } from "lucide-react";
 import { Topbar } from "@/components/layout/Topbar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -194,34 +194,6 @@ export default function PricingPage() {
             </div>
           ))}
         </div>
-
-        {/* Minimal Trust Banner */}
-        <section className="mt-32 pt-20 border-t border-slate-100">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
-            <div className="md:col-span-1">
-              <h4 className="text-xl font-bold text-slate-900 leading-tight">
-                Guaranteed satisfaction.
-              </h4>
-              <p className="text-slate-400 font-medium text-sm mt-2 italic">
-                7-day full refund policy. No questions asked.
-              </p>
-            </div>
-            <div className="md:col-span-2 grid grid-cols-2 gap-8 border-l border-slate-100 pl-0 md:pl-12">
-              <div className="space-y-1">
-                <p className="text-2xl font-black text-slate-950">100%</p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  Data Sovereignty
-                </p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-2xl font-black text-slate-950">Bank-Grade</p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  Security Standards
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
 
       <footer className="py-12 bg-slate-50 border-t border-slate-100 mt-20">
