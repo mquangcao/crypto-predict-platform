@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, ArrowRight, Minus, Shield, Zap } from "lucide-react";
-import { Topbar } from "@/components/layout/Topbar";
+import { Check, ArrowRight, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -45,8 +44,6 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-slate-900 selection:text-white">
-      <Topbar />
-
       <main className="flex-1 flex flex-col max-w-5xl mx-auto w-full px-6 py-12 md:py-16">
         {/* Compact Typography Header */}
         <div className="space-y-3 mb-12">
@@ -195,25 +192,6 @@ export default function PricingPage() {
           ))}
         </div>
       </main>
-
-      <footer className="py-12 bg-slate-50 border-t border-slate-100 mt-20">
-        <div className="max-w-5xl mx-auto w-full px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-8 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            <Link href="#" className="hover:text-slate-900">
-              Privacy Policy
-            </Link>
-            <Link href="#" className="hover:text-slate-900">
-              Terms of Service
-            </Link>
-            <Link href="#" className="hover:text-slate-900">
-              Support
-            </Link>
-          </div>
-          <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.4em]">
-            CryptoLab Global Ecosystem © 2025
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

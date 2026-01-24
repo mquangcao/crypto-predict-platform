@@ -25,6 +25,9 @@ export const metadata: Metadata = {
   },
 };
 
+import { Footer } from "@/components/layout/Footer";
+import { Topbar } from "@/components/layout/Topbar";
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
@@ -33,7 +36,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       style={{ colorScheme: "light" }}
     >
       <body className="min-h-screen bg-background text-foreground font-sans antialiased">
-        <Providers>{children}</Providers>
+        <Providers>
+          <div className="flex flex-col min-h-screen">
+            <Topbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </Providers>
       </body>
     </html>
   );

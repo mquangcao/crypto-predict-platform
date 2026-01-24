@@ -2,7 +2,6 @@
 
 import { LogoutButton } from "@/components/buttons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Topbar } from "@/components/layout/Topbar";
 import { AuthGuard } from "@/guards/auth-guard";
 import { AccountSettingsForm } from "./account-settings-form";
 import { ChangePasswordForm } from "./change-password-form";
@@ -13,8 +12,6 @@ export default function AccountSettingsPage() {
     <AuthGuard>
       <div className="min-h-screen bg-slate-50">
         <main className="flex flex-col">
-          <Topbar />
-
           <div className="flex-1 flex flex-col items-center p-6 md:p-12 overflow-y-auto">
             <div className="w-full max-w-4xl space-y-10">
               {/* Header section matching the image */}
