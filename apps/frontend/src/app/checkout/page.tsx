@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { AuthGuard } from "@/guards/auth-guard";
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
@@ -59,36 +60,36 @@ function CheckoutContent() {
             <div className="grid grid-cols-1 gap-4">
               <button
                 className={cn(
-                  "flex items-center p-6 md:p-8 rounded-[2.5rem] border-2 border-slate-900 bg-slate-50 transition-all duration-500 gap-6",
-                  "shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] scale-[1.01]",
+                  "flex items-center p-4 md:p-5 rounded-3xl border-2 border-slate-900 bg-slate-50 transition-all duration-500 gap-4",
+                  "shadow-[0_20px_40px_-12px_rgba(0,0,0,0.08)] scale-[1.01]",
                 )}
               >
-                <div className="p-1 rounded-2xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center shrink-0">
+                <div className="p-1 rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center shrink-0">
                   <img
                     src="/MOMO-Logo-App.png"
-                    className="w-14 h-14 object-contain"
+                    className="w-10 h-10 object-contain"
                     alt="MoMo Logo"
                   />
                 </div>
-                <div className="text-left space-y-1.5 flex-1">
-                  <span className="text-xl font-black uppercase tracking-tight text-slate-900 leading-none block">
+                <div className="text-left space-y-1 flex-1">
+                  <span className="text-base font-black uppercase tracking-tight text-slate-900 leading-none block">
                     MoMo Wallet
                   </span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
-                      Default Method
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                      Default
                     </span>
                     <div className="w-1 h-1 rounded-full bg-slate-200" />
-                    <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest whitespace-nowrap">
-                      Instant Verify
+                    <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest whitespace-nowrap">
+                      Instant
                     </span>
                   </div>
                 </div>
                 <div className="flex flex-col items-center gap-1">
                   <div className="bg-slate-900 text-white p-1 rounded-full">
-                    <Check size={14} strokeWidth={4} />
+                    <Check size={12} strokeWidth={4} />
                   </div>
-                  <span className="text-[8px] font-black uppercase tracking-widest text-slate-950">
+                  <span className="text-[7px] font-black uppercase tracking-widest text-slate-950 leading-none">
                     Selected
                   </span>
                 </div>
@@ -229,7 +230,9 @@ export default function CheckoutPage() {
           </div>
         }
       >
-        <CheckoutContent />
+        <AuthGuard>
+          <CheckoutContent />
+        </AuthGuard>
       </Suspense>
     </div>
   );
