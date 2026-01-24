@@ -1,7 +1,13 @@
 import { z } from "zod";
 
 // User role enum to match backend
-export const UserRoleSchema = z.enum(["ADMIN", "BASIC", "ANONYMOUS", "SYSTEM"]);
+export const UserRoleSchema = z.enum([
+  "ADMIN",
+  "BASIC",
+  "ANONYMOUS",
+  "SYSTEM",
+  "VIP",
+]);
 
 // User status enum matching backend
 export const UserStatusSchema = z.enum([
@@ -9,6 +15,7 @@ export const UserStatusSchema = z.enum([
   "INACTIVE",
   "SUSPENDED",
   "PENDING",
+  "VIP",
 ]);
 
 // User entity schema matching the backend API

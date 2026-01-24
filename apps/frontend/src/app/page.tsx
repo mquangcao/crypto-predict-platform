@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Sidebar } from "../components/layout/Sidebar";
 import { Topbar } from "../components/layout/Topbar";
 import { SymbolSelector } from "../components/market/SymbolSelector";
 import { TimeframeSelector } from "../components/market/TimeframeSelector";
@@ -19,11 +18,9 @@ export default function HomePage() {
 
   return (
     <AuthGuard>
-      <div className="flex min-h-screen bg-background text-foreground">
-        <Sidebar />
+      <div className="bg-background text-foreground min-h-screen flex flex-col">
+        <Topbar />
         <main className="flex-1 flex flex-col">
-          <Topbar />
-
           <div className="flex-1 grid grid-cols-1 xl:grid-cols-[2fr_1.2fr] gap-4 p-4 md:p-6">
             {/* Left: market */}
             <section className="space-y-4">

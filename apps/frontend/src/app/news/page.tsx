@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 
 interface NewsItem {
@@ -80,11 +79,9 @@ export default function NewsPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-white">
-      <Sidebar />
+    <div className="min-h-screen bg-white flex flex-col">
+      <Topbar />
       <main className="flex-1 flex flex-col">
-        <Topbar />
-
         <div className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-6xl mx-auto">
             {/* Header */}
