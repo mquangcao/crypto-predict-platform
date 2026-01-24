@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 const navItems: NavTabItem[] = [
   { label: "Market", path: "/" },
   { label: "News", path: "/news" },
+  { label: "Pricing", path: "/pricing" },
 ];
 
 export function Topbar() {
@@ -92,14 +93,14 @@ export function Topbar() {
                 asChild
                 className="text-slate-600 hover:text-slate-900 font-medium"
               >
-                <Link href="/login">Đăng nhập</Link>
+                <Link href="/login">Sign in</Link>
               </Button>
               <Button
                 size="sm"
                 asChild
                 className="bg-indigo-600 hover:bg-linear-to-r from-indigo-600 to-violet-600 text-white border-none shadow-md shadow-indigo-200 transition-all font-bold rounded-lg px-5 hover:scale-[1.02]"
               >
-                <Link href="/register">Tham gia ngay</Link>
+                <Link href="/register">Sign up</Link>
               </Button>
             </div>
           )}
