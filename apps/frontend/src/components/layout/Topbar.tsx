@@ -20,7 +20,7 @@ export function Topbar() {
 
   if (!isInitialized) {
     return (
-      <header className="h-16 border-b border-slate-200 flex items-center justify-between px-4 md:px-6 bg-white/80 backdrop-blur sticky top-0 z-30">
+      <header className="h-16 border-b border-slate-200/60 flex items-center justify-between px-4 md:px-6 bg-white/80 backdrop-blur-md sticky top-0 z-30 shadow-sm shadow-slate-200/40">
         <div className="flex items-center gap-3">
           <Logo size="sm" />
         </div>
@@ -29,7 +29,7 @@ export function Topbar() {
   }
 
   return (
-    <header className="h-16 border-b border-slate-200 flex items-center justify-between px-4 md:px-6 bg-white/80 backdrop-blur sticky top-0 z-30">
+    <header className="h-16 border-b border-slate-200/60 flex items-center justify-between px-4 md:px-6 bg-white/80 backdrop-blur-md sticky top-0 z-30 shadow-sm shadow-slate-200/40">
       <div className="flex items-center gap-3">
         <Logo />
       </div>
@@ -56,7 +56,7 @@ export function Topbar() {
                   user?.role === "ADMIN"
                     ? "bg-indigo-100/50 border-indigo-200 text-indigo-800 shadow-indigo-200/20"
                     : user?.role === "VIP"
-                      ? "bg-amber-100/50 border-amber-200 text-amber-800 shadow-amber-200/20"
+                      ? "bg-amber-100/50 border-amber-200 text-amber-800 shadow-amber-100/20"
                       : "bg-slate-100/50 border-slate-200 text-slate-700 shadow-slate-200/20",
                 )}
               >
