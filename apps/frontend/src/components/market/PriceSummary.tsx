@@ -76,7 +76,7 @@ export function PriceSummary({ symbol, timeframe }: Props) {
 
   let changeLabel = "--";
   let changeClass =
-    "text-xs px-2 py-1 rounded-full bg-slate-700/30 text-slate-300";
+    "text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 font-medium";
 
   if (changePct !== null) {
     const rounded = Number(changePct.toFixed(2));
@@ -85,28 +85,28 @@ export function PriceSummary({ symbol, timeframe }: Props) {
 
     if (rounded > 0) {
       changeClass =
-        "text-xs px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400";
+        "text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-bold shadow-sm";
     } else if (rounded < 0) {
       changeClass =
-        "text-xs px-2 py-1 rounded-full bg-rose-500/10 text-rose-400";
+        "text-xs px-2 py-1 rounded-full bg-rose-100 text-rose-700 font-bold shadow-sm";
     }
   }
 
   return (
     <div className="flex items-center gap-4 text-sm">
       <div>
-        <div className="text-xs text-slate-400 flex items-center gap-2">
+        <div className="text-xs text-slate-500 font-medium flex items-center gap-2 uppercase tracking-wider">
           <span>
             {symbol} · {timeframe}
           </span>
           {realtimePrice !== null && (
-            <span className="flex items-center gap-1 text-emerald-400 text-[11px]">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Live
+            <span className="flex items-center gap-1 text-emerald-600 text-[11px] font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              LIVE
             </span>
           )}
         </div>
-        <div className="text-lg font-semibold">
+        <div className="text-lg font-bold text-slate-900">
           {loading && effectivePrice === null
             ? "Đang tải..."
             : `${displayPrice} USDT`}

@@ -1,5 +1,5 @@
+"use client";
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import { useState } from "react";
 import {
   QueryClient,
   UndefinedInitialDataOptions,
@@ -26,20 +26,20 @@ interface EnhancedMutationParams<
     data: TData,
     variables: TVariables,
     context: TContext,
-    queryClient: QueryClient
+    queryClient: QueryClient,
   ) => unknown;
   onError?: (
     error: TError,
     variables: TVariables,
     context: TContext | undefined,
-    queryClient: QueryClient
+    queryClient: QueryClient,
   ) => unknown;
   onSettled?: (
     data: TData | undefined,
     error: TError | null,
     variables: TVariables,
     context: TContext | undefined,
-    queryClient: QueryClient
+    queryClient: QueryClient,
   ) => unknown;
 }
 
@@ -57,11 +57,11 @@ interface EnhancedMutationParams<
 function createUrl(
   base: string,
   queryParams?: Record<string, string | number | undefined>,
-  routeParams?: Record<string, string | number | undefined>
+  routeParams?: Record<string, string | number | undefined>,
 ) {
   const url = Object.entries(routeParams ?? {}).reduce(
     (acc, [key, value]) => acc.replaceAll(`:${key}`, String(value)),
-    base
+    base,
   );
 
   if (!queryParams) {
@@ -87,7 +87,7 @@ type QueryKey =
 function getQueryKey(
   queryKey: QueryKey,
   route: Record<string, string | number | undefined> = {},
-  query: Record<string, string | number | undefined> = {}
+  query: Record<string, string | number | undefined> = {},
 ) {
   const [mainKey, otherKeys = {}] = queryKey;
 
@@ -168,7 +168,7 @@ export function createGetQueryHook<
       queryKey: getQueryKey(
         rQueryParams.queryKey,
         params?.route,
-        params?.query
+        params?.query,
       ),
       queryFn: () => queryFn(params),
     }) as UseQueryResult<z.infer<ResponseSchema>>;
@@ -253,7 +253,7 @@ export function createPostMutationHook<
           data,
           vars.variables,
           context,
-          queryClient
+          queryClient,
         ),
       onError: (error: any, vars: any, context: any) =>
         rMutationParams?.onError?.(error, vars.variables, context, queryClient),
@@ -263,7 +263,7 @@ export function createPostMutationHook<
           error,
           vars.variables,
           context,
-          queryClient
+          queryClient,
         ),
     } as any);
   };
@@ -348,7 +348,7 @@ export function createPutMutationHook<
           data,
           vars.variables,
           context,
-          queryClient
+          queryClient,
         ),
       onError: (error: any, vars: any, context: any) =>
         rMutationParams?.onError?.(error, vars.variables, context, queryClient),
@@ -358,7 +358,7 @@ export function createPutMutationHook<
           error,
           vars.variables,
           context,
-          queryClient
+          queryClient,
         ),
     } as any);
   };
@@ -430,7 +430,7 @@ export function createDeleteMutationHook<
           error,
           vars.model,
           context,
-          queryClient
+          queryClient,
         ),
     } as any);
   };

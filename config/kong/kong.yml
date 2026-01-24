@@ -37,6 +37,7 @@ services:
       - name: user-route
         paths:
           - /api/user
+          - /api/account
         strip_path: false
 
   - name: market-service

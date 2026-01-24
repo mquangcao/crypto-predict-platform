@@ -14,7 +14,7 @@ export function SymbolSelector({ symbol, onChangeSymbol }: Props) {
         Symbol
       </span>
       <select
-        className="bg-slate-900 border border-slate-700 text-sm rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-indigo-500"
+        className="bg-white border border-slate-300 text-slate-900 text-sm rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-indigo-500 shadow-sm transition-all"
         value={symbol}
         onChange={(e) => onChangeSymbol(e.target.value)}
       >

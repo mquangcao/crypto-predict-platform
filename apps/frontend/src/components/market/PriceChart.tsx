@@ -2,12 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  CandlestickSeries,
   createChart,
   type CandlestickData,
   type ISeriesApi,
   type UTCTimestamp,
-  // @ts-ignore – CandlestickSeries là value trong runtime của version mới
-  CandlestickSeries,
 } from "lightweight-charts";
 import type { Timeframe } from "../../app/page";
 import { usePriceStream } from "./usePriceStream";
@@ -52,20 +51,20 @@ export function PriceChart({ symbol, timeframe }: Props) {
 
     const chart = createChart(containerRef.current, {
       layout: {
-        background: { color: "#020617" }, // slate-950
-        textColor: "#e5e7eb",
+        background: { color: "#ffffff" },
+        textColor: "#334155",
       },
       rightPriceScale: {
-        borderColor: "#1f2937",
+        borderColor: "#e2e8f0",
       },
       timeScale: {
-        borderColor: "#1f2937",
+        borderColor: "#e2e8f0",
         timeVisible: true,
         secondsVisible: false,
       },
       grid: {
-        vertLines: { color: "#020617" },
-        horzLines: { color: "#020617" },
+        vertLines: { color: "#f1f5f9" },
+        horzLines: { color: "#f1f5f9" },
       },
       crosshair: {
         mode: 1,
@@ -73,7 +72,6 @@ export function PriceChart({ symbol, timeframe }: Props) {
     });
 
     // 👉 API mới: addSeries(CandlestickSeries, options)
-    // @ts-ignore – bỏ qua TS, runtime sẽ dùng value CandlestickSeries của lib
     const candleSeries: ISeriesApi<"Candlestick"> = chart.addSeries(
       CandlestickSeries,
       {
@@ -84,7 +82,7 @@ export function PriceChart({ symbol, timeframe }: Props) {
         wickDownColor: "#ef4444",
         borderUpColor: "#22c55e",
         borderDownColor: "#ef4444",
-      }
+      },
     );
 
     chartRef.current = chart;
@@ -217,52 +215,54 @@ export function PriceChart({ symbol, timeframe }: Props) {
   return (
     <div className="w-full h-full flex flex-col">
       {/* Top bar kiểu TradingView: symbol, timeframe, OHLC, Live */}
-      <div className="flex justify-between items-center mb-2 text-xs text-slate-300">
+      <div className="flex justify-between items-center mb-2 text-xs text-slate-600">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span className="font-semibold text-slate-100">{symbol}</span>
-          <span className="px-1.5 py-0.5 rounded bg-slate-800/80 border border-slate-700">
+          <span className="font-bold text-slate-900 uppercase tracking-wide">
+            {symbol}
+          </span>
+          <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 font-bold text-slate-700">
             {timeframe}
           </span>
 
           {last && (
             <>
-              <span className="text-slate-400">
+              <span className="text-slate-500 font-medium">
                 O{" "}
-                <span className="text-slate-100">
+                <span className="text-slate-900 font-bold">
                   {last.open.toLocaleString("en-US")}
                 </span>
               </span>
-              <span className="text-slate-400">
+              <span className="text-slate-500 font-medium">
                 H{" "}
-                <span className="text-slate-100">
+                <span className="text-slate-900 font-bold">
                   {last.high.toLocaleString("en-US")}
                 </span>
               </span>
-              <span className="text-slate-400">
+              <span className="text-slate-500 font-medium">
                 L{" "}
-                <span className="text-slate-100">
+                <span className="text-slate-900 font-bold">
                   {last.low.toLocaleString("en-US")}
                 </span>
               </span>
-              <span className="text-slate-400">
+              <span className="text-slate-500 font-medium">
                 C{" "}
-                <span className="text-slate-100">
+                <span className="text-slate-900 font-bold">
                   {last.close.toLocaleString("en-US")}
                 </span>
               </span>
             </>
           )}
 
-          <span className="text-[11px] text-slate-500 hidden sm:inline">
+          <span className="text-[11px] text-slate-400 hidden sm:inline italic">
             Nguồn: Binance · Candlestick
           </span>
         </div>
 
         <div className="flex items-center gap-2">
           {realtimePrice != null && (
-            <div className="flex items-center gap-1 text-emerald-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Live</span>
+            <div className="flex items-center gap-1 text-emerald-600 font-bold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>LIVE</span>
             </div>
           )}
         </div>
@@ -270,15 +270,15 @@ export function PriceChart({ symbol, timeframe }: Props) {
 
       <div
         ref={containerRef}
-        className="flex-1 rounded-xl bg-slate-950 overflow-hidden relative"
+        className="flex-1 rounded-xl bg-white overflow-hidden relative border border-slate-100"
       >
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-400 bg-slate-950/40">
+          <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-500 bg-white/60 backdrop-blur-[2px] z-10 font-medium">
             Đang tải dữ liệu từ Binance...
           </div>
         )}
         {error && !loading && (
-          <div className="absolute inset-0 flex items-center justify-center text-xs text-rose-400 bg-slate-950/40">
+          <div className="absolute inset-0 flex items-center justify-center text-xs text-rose-600 bg-white/60 backdrop-blur-[2px] z-10 font-bold uppercase tracking-wider">
             {error}
           </div>
         )}

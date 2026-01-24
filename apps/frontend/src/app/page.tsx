@@ -19,7 +19,7 @@ export default function HomePage() {
 
   return (
     <AuthGuard>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen bg-background text-foreground">
         <Sidebar />
         <main className="flex-1 flex flex-col">
           <Topbar />
@@ -38,17 +38,17 @@ export default function HomePage() {
                 <PriceSummary symbol={symbol} timeframe={timeframe} />
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 md:p-4 h-[360px]">
+              <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-3 md:p-4 h-[360px]">
                 <PriceChart symbol={symbol} timeframe={timeframe} />
               </div>
             </section>
 
             {/* Right: news + AI */}
             <section className="space-y-4">
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 md:p-4 max-h-[260px] flex flex-col">
-                <h2 className="text-sm font-semibold mb-2 flex items-center justify-between">
+              <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-3 md:p-4 max-h-[260px] flex flex-col">
+                <h2 className="text-sm font-semibold mb-2 flex items-center justify-between text-slate-800">
                   <span>Tin tức mới nhất</span>
-                  <span className="text-xs text-slate-400">Mock data</span>
+                  <span className="text-xs text-slate-500">Mock data</span>
                 </h2>
                 <div className="flex-1 overflow-y-auto pr-1">
                   <NewsList />
