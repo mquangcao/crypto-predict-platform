@@ -3,6 +3,8 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ReactNode } from "react";
 import { Providers } from "@/providers";
+import { Topbar } from "@/components/layout/main/topbar";
+import { Footer } from "@/components/layout/main/footer";
 
 // Configure Poppins globally
 const poppins = Poppins({
@@ -24,9 +26,6 @@ export const metadata: Metadata = {
     ],
   },
 };
-
-import { Footer } from "@/components/layout/Footer";
-import { Topbar } from "@/components/layout/Topbar";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
