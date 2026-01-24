@@ -59,27 +59,38 @@ function CheckoutContent() {
             <div className="grid grid-cols-1 gap-4">
               <button
                 className={cn(
-                  "flex items-center p-8 rounded-[2rem] border-2 transition-all duration-500 gap-6",
-                  "border-pink-500 bg-white shadow-2xl shadow-pink-100/30 text-pink-600",
+                  "flex items-center p-6 md:p-8 rounded-[2.5rem] border-2 border-slate-900 bg-slate-50 transition-all duration-500 gap-6",
+                  "shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] scale-[1.01]",
                 )}
               >
-                <div className="p-1.5 rounded-2xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center shrink-0">
+                <div className="p-1 rounded-2xl bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center shrink-0">
                   <img
                     src="/MOMO-Logo-App.png"
                     className="w-14 h-14 object-contain"
                     alt="MoMo Logo"
                   />
                 </div>
-                <div className="text-left space-y-1">
-                  <span className="text-lg font-black uppercase tracking-widest block text-slate-900">
+                <div className="text-left space-y-1.5 flex-1">
+                  <span className="text-xl font-black uppercase tracking-tight text-slate-900 leading-none block">
                     MoMo Wallet
                   </span>
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">
-                    Instant Redirect • Secured Gateway
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                      Default Method
+                    </span>
+                    <div className="w-1 h-1 rounded-full bg-slate-200" />
+                    <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest whitespace-nowrap">
+                      Instant Verify
+                    </span>
+                  </div>
                 </div>
-                <div className="ml-auto">
-                  <div className="w-6 h-6 rounded-full border-4 border-pink-500 bg-white" />
+                <div className="flex flex-col items-center gap-1">
+                  <div className="bg-slate-900 text-white p-1 rounded-full">
+                    <Check size={14} strokeWidth={4} />
+                  </div>
+                  <span className="text-[8px] font-black uppercase tracking-widest text-slate-950">
+                    Selected
+                  </span>
                 </div>
               </button>
             </div>
