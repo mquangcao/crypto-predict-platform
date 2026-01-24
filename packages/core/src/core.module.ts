@@ -2,6 +2,7 @@ import { getConfig, GatewayConfig } from "@app/common";
 import { Module } from "@nestjs/common";
 
 import { GatewayModule } from "./gateway";
+import { AxiosModule } from "./axios";
 
 const gatewayConfig = getConfig<GatewayConfig>("core.gateway");
 
@@ -12,11 +13,12 @@ const gatewayConfig = getConfig<GatewayConfig>("core.gateway");
         ([serviceId, transport]) => ({
           serviceId,
           transport,
-        })
+        }),
       ),
     }),
+    AxiosModule.forRoot(),
   ],
-  exports: [GatewayModule],
+  exports: [GatewayModule, AxiosModule],
 })
 export class CoreModule {
   static forRoot() {

@@ -1,0 +1,95 @@
+import { Repository } from 'typeorm';
+
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+
+import { PAYMENT_STRATEGIES } from '../constants';
+import { PaymentTransactionEntity } from '../entities/payment-transaction.entity';
+import {
+  PaymentMethod,
+  PaymentRequest,
+  PaymentResult,
+  PaymentStatus,
+  PaymentVerification,
+} from '../interfaces';
+import type { BasePaymentStrategy } from '../strategies';
+
+/**
+ * Payment service that manages different payment strategies
+ */
+@Injectable()
+export class PaymentService {
+  constructor(
+    @Inject(PAYMENT_STRATEGIES)
+    private readonly strategies: BasePaymentStrategy[],
+    @InjectRepository(PaymentTransactionEntity)
+    private readonly transactionRepo: Repository<PaymentTransactionEntity>,
+  ) {}
+
+  /**
+   * Get a specific payment strategy by method
+   */
+  private getStrategy(method: PaymentMethod): BasePaymentStrategy {
+    const strategy = this.strategies.find(s => s.method === method);
+    if (!strategy) {
+      throw new NotFoundException(`Payment strategy for method '${method}' not found`);
+    }
+    return strategy;
+  }
+
+  /**
+   * Get all available payment methods
+   */
+  getAvailableMethods(): PaymentMethod[] {
+    return this.strategies.map(s => s.method);
+  }
+
+  /**
+   * Initiate a new payment
+   */
+  async initiatePayment(request: PaymentRequest): Promise<PaymentResult> {
+    const method = request.metadata?.method as PaymentMethod;
+    const strategy = this.getStrategy(method);
+    return await strategy.initiatePayment(request);
+  }
+
+  /**
+   * Verify payment status
+   */
+  async verifyPayment(transactionId: string): Promise<PaymentVerification> {
+    const transaction = await this.transactionRepo.findOne({
+      where: { transactionId },
+    });
+
+    if (!transaction) {
+      throw new NotFoundException(`Transaction ${transactionId} not found`);
+    }
+
+    const strategy = this.getStrategy(transaction.method);
+    return await strategy.verifyPayment(transactionId);
+  }
+
+  /**
+   * Cancel a payment
+   */
+  async cancelPayment(transactionId: string): Promise<PaymentResult> {
+    const transaction = await this.transactionRepo.findOne({
+      where: { transactionId },
+    });
+
+    if (!transaction) {
+      throw new NotFoundException(`Transaction ${transactionId} not found`);
+    }
+
+    const strategy = this.getStrategy(transaction.method);
+    return await strategy.cancelPayment(transactionId);
+  }
+
+  /**
+   * Handle payment callback from gateway
+   */
+  async handleCallback(method: PaymentMethod, data: any): Promise<PaymentVerification> {
+    const strategy = this.getStrategy(method);
+    return await strategy.handleCallback(data);
+  }
+}

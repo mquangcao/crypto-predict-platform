@@ -1,0 +1,55 @@
+module.exports = {
+  port: 4005,
+  appName: 'payment-service',
+  database: {
+    type: 'postgres',
+    host: 'localhost',
+    port: 5433,
+    username: 'postgres',
+    password: 'postgres',
+    dbName: 'postgres',
+    synchronize: true,
+    logging: false,
+  },
+
+  payment: {
+    momo: {
+      partnerCode: 'MOMO',
+      accessKey: 'your-momo-access-key',
+      secretKey: 'your-momo-secret-key',
+      apiEndpoint: 'https://test-payment.momo.vn',
+      ipnUrl: 'http://localhost:8000/api/payment/callback/momo',
+      partnerName: 'Crypto Platform',
+      storeId: 'CryptoPlatformStore',
+    },
+  },
+  
+  core: {
+    gateway: {
+      initServices: ['payment'],
+      services: {
+        auth: {
+          transport: 0,
+          options: {
+            host: 'localhost',
+            port: 8001,
+          },
+        },
+        user: {
+          transport: 0,
+          options: {
+            host: 'localhost',
+            port: 8002,
+          },
+        },
+        payment: {
+          transport: 0,
+          options: {
+            host: 'localhost',
+            port: 8005,
+          },
+        }
+      },
+    },
+  },
+};
