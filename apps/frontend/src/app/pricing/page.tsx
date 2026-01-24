@@ -22,6 +22,7 @@ export default function PricingPage() {
       ],
       cta: "Get Started",
       highlighted: false,
+      href: "/",
     },
     {
       name: "VIP Premium",
@@ -39,6 +40,7 @@ export default function PricingPage() {
       cta: "Go Premium",
       highlighted: true,
       tag: "Recommended",
+      href: "/checkout",
     },
   ];
 
@@ -181,7 +183,11 @@ export default function PricingPage() {
                   )}
                 >
                   <Link
-                    href="/register"
+                    href={
+                      plan.highlighted
+                        ? `${plan.href}?period=${isYearly ? "yearly" : "monthly"}`
+                        : plan.href
+                    }
                     className="flex items-center gap-2 justify-center"
                   >
                     {plan.cta} <ArrowRight size={16} strokeWidth={3} />
