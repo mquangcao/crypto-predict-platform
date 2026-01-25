@@ -21,6 +21,14 @@ export const useGetPlans = createGetQueryHook({
   },
 });
 
+export const useGetPlan = createGetQueryHook({
+  endpoint: "/plans/:id",
+  responseSchema: PlanResponseSchema,
+  rQueryParams: {
+    queryKey: ["plan"],
+  },
+});
+
 export const useGetAdminPlans = createGetQueryHook({
   endpoint: "/plans/all",
   responseSchema: PlansResponseSchema,

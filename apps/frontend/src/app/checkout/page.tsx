@@ -9,25 +9,79 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AuthGuard } from "@/guards/auth-guard";
 
+import { useGetPlan } from "@/hooks";
+import { Loader2 } from "lucide-react";
+
 function CheckoutContent() {
   const searchParams = useSearchParams();
+  const planId = searchParams.get("planId");
   const period = searchParams.get("period") || "monthly";
   const isYearly = period === "yearly";
 
-  const basePrice = isYearly ? 450000 : 36000;
-  const discount = isYearly ? 0.2 : 0;
-  const totalPrice = basePrice * (1 - discount);
+  const {
+    data: planResponse,
+    isLoading,
+    error,
+  } = useGetPlan({
+    route: { id: planId || "" },
+    rQueryParams: { enabled: !!planId },
+  } as any);
+
+  const plan = planResponse?.data;
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
+      </div>
+    );
+  }
+
+  if (error || !plan) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center space-y-4">
+        <p className="text-red-600 font-bold uppercase tracking-widest text-xs">
+          Failed to load plan details
+        </p>
+        <Link
+          href="/pricing"
+          className="text-indigo-600 font-bold uppercase tracking-widest text-[10px] hover:underline"
+        >
+          Return to pricing
+        </Link>
+      </div>
+    );
+  }
+
+  const getPrice = () => {
+    if (isYearly) {
+      const discount = plan.yearlyDiscountPrice;
+      if (discount !== null && discount > 0) {
+        return discount <= 1 ? plan.yearlyPrice * discount : discount;
+      }
+      return plan.yearlyPrice;
+    }
+    const discount = plan.monthlyDiscountPrice;
+    if (discount !== null && discount > 0) {
+      return discount <= 1 ? plan.monthlyPrice * discount : discount;
+    }
+    return plan.monthlyPrice;
+  };
+
+  const basePrice = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+  const totalPrice = getPrice();
 
   const handlePayment = () => {
     console.log("Initiating MoMo payment...", {
-      plan: "VIP PREMIUM",
+      planId: plan.id,
+      planName: plan.name,
       period: period,
       basePrice: basePrice,
       totalAmount: totalPrice,
       currency: "VND",
       timestamp: new Date().toISOString(),
     });
-    alert("Redirecting to MoMo payment gateway... (Check console for details)");
+    alert(`Redirecting to MoMo for ${plan.name} (${period})...`);
   };
 
   return (
@@ -44,11 +98,15 @@ function CheckoutContent() {
             </Link>
             <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 leading-tight">
               Complete your{" "}
-              <span className="text-indigo-600">VIP Upgrade.</span>
+              <span className="text-indigo-600">
+                {plan.name.split(" ").slice(0, -1).join(" ")}{" "}
+                <span className="text-slate-900">
+                  {plan.name.split(" ").pop()} Upgrade.
+                </span>
+              </span>
             </h1>
             <p className="text-slate-500 text-base max-w-lg font-medium">
-              Pay securely via MoMo to unlock institutional-grade AI insights
-              instantly.
+              {plan.description}
             </p>
           </div>
 
@@ -105,7 +163,8 @@ function CheckoutContent() {
               </h3>
               <p className="text-center text-slate-500 font-medium text-sm leading-relaxed max-w-xs mx-auto">
                 You will be redirected to the official MoMo gateway to safely
-                authorize your payment.
+                authorize your payment for{" "}
+                <span className="font-bold text-slate-900">{plan.name}</span>.
               </p>
             </div>
 
@@ -133,8 +192,8 @@ function CheckoutContent() {
                 <h3 className="text-xs font-black uppercase tracking-[0.2em] text-indigo-400">
                   Selected Plan
                 </h3>
-                <div className="text-2xl font-black tracking-tight">
-                  VIP PREMIUM
+                <div className="text-2xl font-black tracking-tight uppercase">
+                  {plan.name}
                 </div>
               </div>
 
@@ -153,12 +212,14 @@ function CheckoutContent() {
                     {basePrice.toLocaleString()} VND
                   </span>
                 </div>
-                {isYearly && (
+                {totalPrice < basePrice && (
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-emerald-400 font-medium">
                       Applied Discount
                     </span>
-                    <span className="font-black text-emerald-400">- 20%</span>
+                    <span className="font-black text-emerald-400">
+                      - {Math.round((1 - totalPrice / basePrice) * 100)}%
+                    </span>
                   </div>
                 )}
               </div>
@@ -178,11 +239,7 @@ function CheckoutContent() {
               </div>
 
               <div className="pt-6 space-y-3">
-                {[
-                  "Priority Support",
-                  "AI Signals Included",
-                  "Full News Access",
-                ].map((item) => (
+                {plan.features.map((item: string) => (
                   <div
                     key={item}
                     className="flex items-center gap-2 text-[11px] font-bold text-slate-300 uppercase tracking-widest"
