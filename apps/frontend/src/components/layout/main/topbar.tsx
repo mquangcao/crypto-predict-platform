@@ -26,6 +26,12 @@ export function Topbar() {
   const isVip = !!vipData?.data && user?.role !== "ADMIN";
   const isAdmin = user?.role === "ADMIN";
 
+  // Dynamically create nav items based on role
+  const dynamicNavItems = [...navItems];
+  if (isAdmin) {
+    dynamicNavItems.push({ label: "Dashboard", path: "/account/admin/plans" });
+  }
+
   if (!isInitialized) {
     return (
       <header className="h-16 border-b border-slate-200/60 flex items-center justify-between px-4 md:px-6 bg-white/80 backdrop-blur-md sticky top-0 z-30 shadow-sm shadow-slate-200/40">
@@ -44,7 +50,7 @@ export function Topbar() {
 
       <div className="flex items-center gap-5 md:gap-8">
         <div className="hidden lg:flex items-center">
-          <NavTabs items={navItems} />
+          <NavTabs items={dynamicNavItems} />
         </div>
 
         <Divider
