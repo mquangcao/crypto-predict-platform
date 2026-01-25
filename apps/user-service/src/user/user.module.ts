@@ -7,11 +7,12 @@ import { OperationMap } from './commands/impl';
 import { UserMeController } from './controllers/user-me.controller';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './services/user.service';
+import { SeedService } from './services/seed.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity]), GatewayModule.forFeature(OperationMap)],
   controllers: [UserMeController],
-  providers: [UserService, ...CommandHandlers],
+  providers: [UserService, SeedService, ...CommandHandlers],
   exports: [TypeOrmModule],
 })
 export class UserModule {}

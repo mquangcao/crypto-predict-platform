@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // User role enum to match backend
-export const UserRoleSchema = z.enum(["ADMIN", "VIP", "BASIC"]);
+export const UserRoleSchema = z.enum(["ADMIN", "BASIC"]);
 
 // User status enum matching backend
 export const UserStatusSchema = z.enum([
