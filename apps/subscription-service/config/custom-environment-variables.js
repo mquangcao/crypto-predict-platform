@@ -18,6 +18,15 @@ module.exports = {
   },
 
   core: {
+    kafka: {
+      client: {
+        brokers: json('CORE_KAFKA_CLIENT_BROKERS'),
+        clientId: 'CORE_KAFKA_CLIENT_CLIENT_ID',
+      },
+      consumer: {
+        groupId: 'CORE_KAFKA_CONSUMER_GROUP_ID',
+      },
+    },
     gateway: {
       initServices: json('CORE_GATEWAY_INIT_SERVICES'),
       services: {

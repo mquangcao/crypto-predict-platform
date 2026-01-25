@@ -25,6 +25,15 @@ module.exports = {
   },
   
   core: {
+    kafka: {
+      client: {
+        clientId: 'payment-service',
+        brokers: ['localhost:9092'],
+      },
+      consumer: {
+        groupId: 'payment-service-group',
+      },
+    },
     gateway: {
       initServices: ['payment'],
       services: {

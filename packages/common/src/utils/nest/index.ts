@@ -22,7 +22,7 @@ export interface SetupBootstrapOptions {
 export async function setupBootstrap(
   app: INestApplication<any>,
   options: SetupBootstrapOptions = {},
-  serverUrls?: string[]
+  serverUrls?: string[],
 ) {
   const logger = new Logger("Bootstrap");
   app.enableShutdownHooks();
@@ -37,7 +37,7 @@ export async function setupBootstrap(
 
   app.useGlobalInterceptors(
     new HttpResponseInterceptor(),
-    HttpLoggingInterceptor({ logLevel: options.logLevel ?? "debug" })
+    HttpLoggingInterceptor({ logLevel: options.logLevel ?? "debug" }),
   );
 
   app.useGlobalFilters(new HttpExceptionFilter());
@@ -56,9 +56,21 @@ export async function setupBootstrap(
   const initServices = getConfig("core.gateway.initServices", []);
   for (const serviceId of initServices) {
     const serviceOptions = getConfig<MicroserviceOptions>(
-      `core.gateway.services.${serviceId}`
+      `core.gateway.services.${serviceId}`,
     );
     app.connectMicroservice<MicroserviceOptions>(serviceOptions);
+  }
+
+  const kafkaConfig = getConfig("core.kafka");
+  if (kafkaConfig) {
+    const { Transport } = require("@nestjs/microservices");
+    app.connectMicroservice<MicroserviceOptions>({
+      transport: Transport.KAFKA,
+      options: {
+        client: kafkaConfig.client,
+        consumer: kafkaConfig.consumer,
+      },
+    });
   }
 
   const port = options.listenPort ?? getConfig<number>("port");
@@ -73,8 +85,8 @@ export async function setupBootstrap(
           `Application is running on: ${url}`,
           `Api document on: ${url}${swaggerPath}`,
           `=====================`,
-        ].join("\n")
+        ].join("\n"),
       );
-    }
+    },
   );
 }

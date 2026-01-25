@@ -9,6 +9,7 @@
     "check-types": "turbo run check-types"
   },
   "dependencies": {
+    "kafkajs": "^2.2.4",
     "pg": "^8.16.3"
   },
   "devDependencies": {

@@ -40,6 +40,19 @@ services:
     ports:
       - "5435:5432"
 
+  subscription-db:
+    image: bitnami/postgresql:latest
+    networks:
+      - nest
+    volumes:
+      - subscription_db_data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=postgres
+      - POSTGRESQL_DATABASE=subscription_db
+    ports:
+      - "5436:5432"
+
   kong: ## Kong API Gateway
     image: kong/kong:3.8
     networks:
@@ -64,6 +77,20 @@ services:
       - user-db
       - news-db
 
+  kafka:
+    image: bitnami/kafka:latest
+    networks:
+      - nest
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    ports:
+      - "9092:9092"
+
 networks:
   nest:
     driver: bridge
@@ -72,3 +99,4 @@ volumes:
   auth_db_data:
   user_db_data:
   news_db_data:
+  subscription_db_data:

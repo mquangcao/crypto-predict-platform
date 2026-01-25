@@ -80,3 +80,11 @@ services:
         paths:
           - /api/payments
         strip_path: false
+
+  - name: subscription-service
+    url: http://host.docker.internal:4007
+    routes:
+      - name: subscription-route
+        paths:
+          - /api/subscriptions
+        strip_path: false

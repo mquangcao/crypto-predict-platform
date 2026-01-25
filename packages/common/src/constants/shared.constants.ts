@@ -3,4 +3,5 @@ export const SERVICE = {
   USER: "user",
   NEWS: "news",
   PLAN: "plan",
+  SUBSCRIPTION: "subscription",
 };

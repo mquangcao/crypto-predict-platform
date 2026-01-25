@@ -4,15 +4,24 @@ module.exports = {
   database: {
     type: 'postgres',
     host: 'localhost',
-    port: 5433,
+    port: 5436,
     username: 'postgres',
     password: 'postgres',
-    dbName: 'postgres',
+    dbName: 'subscription_db',
     synchronize: true,
     logging: false,
   },
   
   core: {
+    kafka: {
+      client: {
+        clientId: 'subscription-service',
+        brokers: ['localhost:9092'],
+      },
+      consumer: {
+        groupId: 'subscription-service-group',
+      },
+    },
     gateway: {
       initServices: ['subscription'],
       services: {
