@@ -16,7 +16,7 @@ export const LoginRequestSchema = z
     { message: "Password is required when username or email is provided" },
   );
 
-export const TokenRoleSchema = z.enum(["ADMIN", "BASIC", "VIP"]);
+export const TokenRoleSchema = z.enum(["ADMIN", "BASIC"]);
 
 export const LoginResponseSchema = BaseResponseSchema(
   z.object({
@@ -31,7 +31,7 @@ export const RefreshTokenRequestSchema = z.object({
   refresh_token: z.string(),
 });
 
-export const UserRoleSchema = z.enum(["ADMIN", "BASIC", "VIP"]);
+export const UserRoleSchema = z.enum(["ADMIN", "BASIC"]);
 
 export const RegisterRequestSchema = z.object({
   email: z.string().email(),
