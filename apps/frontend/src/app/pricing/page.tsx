@@ -2,7 +2,7 @@
 
 import { PlansSection } from "./_components/plans-section";
 import { useGetMySubscription, useAuth } from "@/hooks";
-import { Crown, Calendar } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { format } from "date-fns";
 
 export default function PricingPage() {
@@ -18,7 +18,7 @@ export default function PricingPage() {
       <main className="flex-1 flex flex-col max-w-5xl mx-auto w-full px-6 py-12 md:py-16">
         {/* Compact Typography Header */}
         <div className="space-y-4 mb-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="space-y-3">
               <p className="text-indigo-600 font-bold tracking-widest uppercase text-[10px]">
                 Pricing & Plans
@@ -30,33 +30,46 @@ export default function PricingPage() {
             </div>
 
             {isVip && (
-              <div className="bg-slate-900 text-white p-5 rounded-[2rem] shadow-2xl shadow-slate-900/20 flex flex-col gap-3 min-w-[280px] animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="bg-amber-400 p-1.5 rounded-full">
-                      <Crown
-                        size={14}
-                        className="text-slate-900"
-                        fill="currentColor"
-                      />
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest">
-                      VIP Member
+              <div className="bg-white border border-slate-200 p-5 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col gap-3 min-w-[280px] animate-in fade-in slide-in-from-right-2 duration-500 relative overflow-hidden">
+                {/* Subtle side accent */}
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-indigo-600"></div>
+
+                <div className="flex items-center justify-between pl-2">
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-600 opacity-80">
+                      Member Status
+                    </span>
+                    <h3 className="text-sm font-black text-slate-900 tracking-tight">
+                      VIP ACCOUNT
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full border border-emerald-100">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                    <span className="text-[9px] font-black uppercase tracking-wider">
+                      Active
                     </span>
                   </div>
-                  <span className="text-[9px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">
-                    Active
-                  </span>
                 </div>
 
-                <div className="space-y-1">
-                  <p className="text-xl font-black tracking-tight">
-                    {subscription.planName}
-                  </p>
-                  <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
-                    <Calendar size={12} />
-                    Expires:{" "}
-                    {format(new Date(subscription.endDate), "dd/MM/yyyy")}
+                <div className="h-px bg-slate-100 w-full ml-2"></div>
+
+                <div className="flex items-center justify-between gap-6 pl-2">
+                  <div className="space-y-0.5">
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                      Plan
+                    </p>
+                    <p className="text-sm font-black text-slate-800 tracking-tight">
+                      {subscription.planName}
+                    </p>
+                  </div>
+                  <div className="text-right space-y-0.5">
+                    <div className="flex items-center justify-end gap-1 text-slate-400 text-[9px] font-bold uppercase tracking-widest">
+                      <Calendar size={10} />
+                      Renewal
+                    </div>
+                    <p className="text-xs font-bold text-slate-700">
+                      {format(new Date(subscription.endDate), "dd/MM/yyyy")}
+                    </p>
                   </div>
                 </div>
               </div>
