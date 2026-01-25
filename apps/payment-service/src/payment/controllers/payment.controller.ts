@@ -45,14 +45,14 @@ export class PaymentController {
   @ApiOkResponse({ description: 'Payment initiated successfully' })
   @Post('initiate')
   async initiatePayment(@Body() dto: InitiatePaymentDto, @UserSession() user?: TokenPayload) {
-    const result = await this.paymentService.initiatePayment({
-      orderId: dto.orderId,
-      amount: dto.amount,
-      currency: dto.currency,
-      description: dto.description,
+    const result = await this.paymentService.initiateUpgrade({
+      planId: dto.planId,
+      interval: dto.interval,
+      method: dto.method,
       redirectUrl: dto.redirectUrl,
+      description: dto.description,
       customerInfo: dto.customerInfo,
-      metadata: { ...dto.metadata, method: dto.method, userId: user?.sub },
+      metadata: { ...dto.metadata, userId: user?.sub },
     });
 
     return ResponseBuilder.createResponse({ data: result });

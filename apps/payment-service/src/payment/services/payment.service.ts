@@ -1,3 +1,5 @@
+import { PLAN_OPERATION, SERVICE } from '@app/common';
+import { GatewayService } from '@app/core';
 import { Repository } from 'typeorm';
 
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
@@ -24,6 +26,7 @@ export class PaymentService {
     private readonly strategies: BasePaymentStrategy[],
     @InjectRepository(PaymentTransactionEntity)
     private readonly transactionRepo: Repository<PaymentTransactionEntity>,
+    private readonly gateway: GatewayService,
   ) {}
 
   /**
@@ -42,6 +45,54 @@ export class PaymentService {
    */
   getAvailableMethods(): PaymentMethod[] {
     return this.strategies.map(s => s.method);
+  }
+
+  /**
+   * Initiate upgrade payment
+   */
+  async initiateUpgrade(dto: {
+    planId: string;
+    interval: 'month' | 'year';
+    method: PaymentMethod;
+    redirectUrl: string;
+    description?: string;
+    customerInfo?: any;
+    metadata?: any;
+  }): Promise<PaymentResult> {
+    // 1. Get plan info from plan-service
+    const planInfo = await this.gateway.runOperation<any>({
+      serviceId: SERVICE.PLAN,
+      operationId: PLAN_OPERATION.GET_PLAN_FOR_PAYMENT,
+      payload: {
+        planId: dto.planId,
+        interval: dto.interval,
+      },
+    });
+
+    if (!planInfo) {
+      throw new BadRequestException('Plan not found or invalid');
+    }
+
+    // 2. Initiate payment with the fetched amount
+    const orderId = `UPGRADE-${dto.planId.toUpperCase()}-${Date.now()}`;
+    const request: PaymentRequest = {
+      orderId,
+      amount: planInfo.price,
+      currency: planInfo.currency || 'VND',
+      description: dto.description || `Upgrade to ${planInfo.name} (${dto.interval})`,
+      redirectUrl: dto.redirectUrl,
+      customerInfo: dto.customerInfo,
+      metadata: {
+        ...dto.metadata,
+        planId: dto.planId,
+        interval: dto.interval,
+        planName: planInfo.name,
+        method: dto.method,
+      },
+    };
+
+    const strategy = this.getStrategy(dto.method);
+    return await strategy.initiatePayment(request);
   }
 
   /**

@@ -17,35 +17,26 @@ export class InitiatePaymentDto {
   method: PaymentMethod;
 
   @ApiProperty({
-    example: 'ORD-123456',
-    description: 'Order ID for the payment',
+    example: 'plan_123',
+    description: 'The ID of the plan to subscribe/upgrade to',
   })
   @Expose()
   @IsString()
   @IsNotEmpty()
-  orderId: string;
+  planId: string;
 
   @ApiProperty({
-    example: 150000,
-    description: 'Payment amount',
-    minimum: 0,
+    enum: ['month', 'year'],
+    example: 'month',
+    description: 'Billing interval',
   })
   @Expose()
-  @IsNumber()
-  @Min(0)
-  amount: number;
+  @IsEnum(['month', 'year'])
+  @IsNotEmpty()
+  interval: 'month' | 'year';
 
   @ApiPropertyOptional({
-    example: 'VND',
-    description: 'Currency code',
-  })
-  @Expose()
-  @IsString()
-  @IsOptional()
-  currency?: string;
-
-  @ApiPropertyOptional({
-    example: 'Payment for order #123456',
+    example: 'Payment for Premium Plan',
     description: 'Payment description',
   })
   @Expose()
@@ -53,14 +44,14 @@ export class InitiatePaymentDto {
   @IsOptional()
   description?: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     example: 'http://localhost:3000/payment/success',
-    description: 'URL to redirect after payment (required for Momo, Bank Transfer)',
+    description: 'URL to redirect after payment (required)',
   })
   @Expose()
   @IsString()
-  @IsOptional()
-  redirectUrl?: string;
+  @IsNotEmpty()
+  redirectUrl: string;
 
   @ApiPropertyOptional({
     example: {
@@ -80,7 +71,7 @@ export class InitiatePaymentDto {
   };
 
   @ApiPropertyOptional({
-    example: { tableNumber: 5, waiterName: 'John' },
+    example: { promoCode: 'SUMMER2024' },
     description: 'Additional metadata',
   })
   @Expose()
