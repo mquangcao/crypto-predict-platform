@@ -61,18 +61,6 @@ export async function setupBootstrap(
     app.connectMicroservice<MicroserviceOptions>(serviceOptions);
   }
 
-  const kafkaConfig = getConfig("core.kafka");
-  if (kafkaConfig) {
-    const { Transport } = require("@nestjs/microservices");
-    app.connectMicroservice<MicroserviceOptions>({
-      transport: Transport.KAFKA,
-      options: {
-        client: kafkaConfig.client,
-        consumer: kafkaConfig.consumer,
-      },
-    });
-  }
-
   const port = options.listenPort ?? getConfig<number>("port");
   const host = options.listenHost ?? getConfig<string>("host", "0.0.0.0");
 

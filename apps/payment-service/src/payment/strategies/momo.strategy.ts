@@ -20,7 +20,6 @@ import {
 import { MomoCryptoUtil } from '../utils/momo-crypto.util';
 import { BasePaymentStrategy } from './base.strategy';
 import { PaymentTransactionEntity } from '../entities/payment-transaction.entity';
-import { KafkaService } from '@app/core';
 import { PAYMENT_EVENT } from '@app/common';
 
 /**
@@ -38,7 +37,6 @@ export class MomoPaymentStrategy extends BasePaymentStrategy {
     @InjectRepository(PaymentLogEntity)
     private readonly logRepo: Repository<PaymentLogEntity>,
     private readonly axiosService: AxiosService,
-    private readonly kafkaService: KafkaService,
   ) {
     super('MomoPaymentStrategy');
 
@@ -289,17 +287,6 @@ export class MomoPaymentStrategy extends BasePaymentStrategy {
             this.logger.warn('Failed to parse extraData', e);
           }
         }
-
-        await this.kafkaService.emit(PAYMENT_EVENT.PAYMENT_SUCCESS, {
-          userId: meta.userId,
-          planId: meta.planId,
-          planName: meta.planName,
-          interval: meta.interval,
-          amount: data.amount,
-          transactionId: transaction.transactionId,
-          orderId: transaction.orderId,
-          verifiedAt: transaction.verifiedAt,
-        });
       }
 
       // Log the callback
