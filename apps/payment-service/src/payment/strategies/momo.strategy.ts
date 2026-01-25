@@ -20,7 +20,6 @@ import {
 import { MomoCryptoUtil } from '../utils/momo-crypto.util';
 import { BasePaymentStrategy } from './base.strategy';
 import { PaymentTransactionEntity } from '../entities/payment-transaction.entity';
-import { PAYMENT_EVENT } from '@app/common';
 
 /**
  * Momo payment strategy

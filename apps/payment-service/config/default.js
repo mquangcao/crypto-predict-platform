@@ -65,6 +65,13 @@ module.exports = {
             port: 8006,
           },
         },
+        subscription: {
+          transport: 0,
+          options: {
+            host: 'localhost',
+            port: 8007,
+          },
+        },
       },
     },
   },

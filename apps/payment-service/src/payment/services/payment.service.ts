@@ -1,4 +1,4 @@
-import { PLAN_OPERATION, SERVICE } from '@app/common';
+import { PLAN_OPERATION, SERVICE, SUBSCRIPTION_OPERATION } from '@app/common';
 import { GatewayService } from '@app/core';
 import { Repository } from 'typeorm';
 
@@ -117,7 +117,13 @@ export class PaymentService {
     }
 
     const strategy = this.getStrategy(transaction.method);
-    return await strategy.verifyPayment(transactionId);
+    const verification = await strategy.verifyPayment(transactionId);
+
+    if (verification.status === PaymentStatus.SUCCESS && transaction.status !== PaymentStatus.SUCCESS) {
+      await this.notifySubscriptionService(transaction);
+    }
+
+    return verification;
   }
 
   /**
@@ -141,6 +147,45 @@ export class PaymentService {
    */
   async handleCallback(method: PaymentMethod, data: any): Promise<PaymentVerification> {
     const strategy = this.getStrategy(method);
-    return await strategy.handleCallback(data);
+    const verification = await strategy.handleCallback(data);
+    
+    if (verification.status === PaymentStatus.SUCCESS) {
+      const transaction = await this.transactionRepo.findOne({
+        where: { transactionId: verification.transactionId },
+      });
+      if (transaction) {
+        await this.notifySubscriptionService(transaction);
+      }
+    }
+
+    return verification;
+  }
+
+  /**
+   * Notify subscription service about successful payment
+   */
+  private async notifySubscriptionService(transaction: PaymentTransactionEntity) {
+    const { userId, metadata } = transaction;
+    if (userId && metadata?.planId) {
+      try {
+        await this.gateway.runOperation({
+          serviceId: SERVICE.SUBSCRIPTION,
+          operationId: SUBSCRIPTION_OPERATION.ACTIVATE_SUBSCRIPTION,
+          payload: {
+            userId,
+            planId: metadata.planId,
+            planName: metadata.planName,
+            interval: metadata.interval,
+            metadata: {
+              ...metadata,
+              transactionId: transaction.transactionId,
+              orderId: transaction.orderId,
+            },
+          },
+        });
+      } catch (error) {
+        console.error('Failed to notify subscription service:', error);
+      }
+    }
   }
 }
