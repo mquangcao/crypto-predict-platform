@@ -52,22 +52,12 @@ export function AccountSettingsForm() {
           disabled
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TextInput
-            name="role"
-            label="Role"
-            value={user?.role || ""}
-            disabled
-          />
-          <TextInput
-            name="createdAt"
-            label="Joined date"
-            value={
-              user?.createdAt ? format(new Date(user.createdAt), "PPP") : ""
-            }
-            disabled
-          />
-        </div>
+        <TextInput
+          name="createdAt"
+          label="Joined date"
+          value={user?.createdAt ? format(new Date(user.createdAt), "PPP") : ""}
+          disabled
+        />
 
         <div className="flex justify-end pt-2">
           <SubmitButton
