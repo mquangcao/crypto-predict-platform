@@ -1,98 +1,206 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Plan Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Service quản lý các gói subscription (monthly/yearly) cho crypto platform.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Tính năng
 
-## Description
+- ✅ Lấy danh sách các gói đang hoạt động
+- ✅ Lấy tất cả các gói (bao gồm cả inactive)
+- ✅ Lấy chi tiết một gói theo ID
+- ✅ Tạo gói mới
+- ✅ Cập nhật thông tin gói
+- ✅ Áp dụng giảm giá cho gói (monthly/yearly)
+- ✅ Xóa giảm giá
+- ✅ Soft delete gói (đánh dấu isActive = false)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Logic Giá
 
-## Project setup
+### Cách tính giá cơ bản:
+- **Monthly Price**: Giá gốc hàng tháng (VD: 36,000 VND)
+- **Yearly Price**: Monthly Price × 12 (VD: 36,000 × 12 = 432,000 VND)
 
-```bash
-$ npm install
+### Giảm giá:
+- **Monthly Discount Price**: Giá giảm cho gói tháng (optional)
+- **Yearly Discount Price**: Giá giảm cho gói năm (optional)
+
+### Ví dụ thực tế:
+```
+Gói VIP Premium:
+├─ monthlyPrice: 36,000 VND
+├─ yearlyPrice: 432,000 VND (36,000 × 12)
+├─ yearlyDiscountPrice: 345,600 VND (giảm 20% = 432,000 × 0.8)
+└─ Tiết kiệm: 86,400 VND khi mua yearly
 ```
 
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+### Hiển thị giá trên Frontend:
+```typescript
+// Luôn ưu tiên giá discount nếu có
+const displayPrice = isYearly 
+  ? (plan.yearlyDiscountPrice || plan.yearlyPrice)
+  : (plan.monthlyDiscountPrice || plan.monthlyPrice);
 ```
 
-## Run tests
+## API Endpoints
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+### 1. Lấy tất cả gói đang hoạt động
+```http
+GET /v1/plans
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "name": "Standard",
+      "description": "Foundational tools for market exploration.",
+      "features": ["Real-time charts", "Market news"],
+      "monthlyPrice": 0,
+      "yearlyPrice": 0,
+      "monthlyDiscountPrice": null,
+      "yearlyDiscountPrice": null,
+      "isPopular": false,
+      "tag": null,
+      "cta": "Get Started",
+      "href": "/",
+      "isActive": true
+    }
+  ]
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 2. Lấy tất cả gói (bao gồm inactive)
+```http
+GET /v1/plans/all
+```
 
-## Resources
+### 3. Lấy chi tiết gói theo ID
+```http
+GET /v1/plans/:id
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### 4. Tạo gói mới
+```http
+POST /v1/plans
+Content-Type: application/json
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+{
+  "name": "VIP Premium",
+  "description": "Advanced intelligence for professional edge.",
+  "features": [
+    "Proprietary AI model analysis",
+    "Actionable trade signals",
+    "Advanced technical indicators"
+  ],
+  "monthlyPrice": 36000,
+  "yearlyPrice": 360000,
+  "isPopular": true,
+  "tag": "Recommended",
+  "cta": "Go Premium",
+  "href": "/checkout"
+}
+```
 
-## Support
+### 5. Cập nhật gói
+```http
+PUT /v1/plans/:id
+Content-Type: application/json
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+{
+  "name": "VIP Premium Plus",
+  "monthlyPrice": 40000,
+  "yearlyPrice": 400000
+}
+```
 
-## Stay in touch
+### 6. Áp dụng giảm giá
+```http
+PATCH /v1/plans/:id/discount
+Content-Type: application/json
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+{
+  "monthlyDiscountPrice": 30000,
+  "yearlyDiscountPrice": 300000
+}
+```
 
-## License
+### 7. Xóa giảm giá
+```http
+DELETE /v1/plans/:id/discount
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### 8. Soft delete gói
+```http
+DELETE /v1/plans/:id
+```
+
+## Database Schema
+
+```typescript
+{
+  id: string (UUID)
+  name: string
+  description: string
+  features: string[]
+  monthlyPrice: number (decimal 12,2)
+  yearlyPrice: number (decimal 12,2)
+  monthlyDiscountPrice: number | null (decimal 12,2)
+  yearlyDiscountPrice: number | null (decimal 12,2)
+  isPopular: boolean
+  tag: string | null
+  cta: string
+  href: string | null
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+## Cách sử dụng từ Frontend
+
+```typescript
+// Fetch active plans
+const response = await fetch('http://localhost:4006/v1/plans');
+const { data } = await response.json();
+
+// Tính giá hiển thị (ưu tiên giá giảm nếu có)
+const displayPrice = (plan, isYearly) => {
+  if (isYearly) {
+    return plan.yearlyDiscountPrice || plan.yearlyPrice;
+  }
+  return plan.monthlyDiscountPrice || plan.monthlyPrice;
+};
+
+// Kiểm tra có giảm giá không
+const hasDiscount = (plan, isYearly) => {
+  if (isYearly) {
+    return plan.yearlyDiscountPrice !== null;
+  }
+  return plan.monthlyDiscountPrice !== null;
+};
+```
+
+## Chạy service
+
+```bash
+# Development
+npm run dev
+
+# Production
+npm run build
+npm run start:prod
+```
+
+## Port
+
+- Development: `4006`
+- Gateway TCP: `8006`
+
+## Dependencies
+
+- NestJS
+- TypeORM
+- PostgreSQL
+- class-validator
+- class-transformer
