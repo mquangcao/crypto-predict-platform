@@ -116,10 +116,14 @@ export class PaymentService {
       throw new NotFoundException(`Transaction ${transactionId} not found`);
     }
 
+    if (transaction.status === PaymentStatus.SUCCESS) {
+      throw new BadRequestException('Transaction has already been processed successfully');
+    }
+
     const strategy = this.getStrategy(transaction.method);
     const verification = await strategy.verifyPayment(transactionId);
 
-    if (verification.status === PaymentStatus.SUCCESS && transaction.status !== PaymentStatus.SUCCESS) {
+    if (verification.status === PaymentStatus.SUCCESS) {
       await this.notifySubscriptionService(transaction);
     }
 
@@ -147,6 +151,17 @@ export class PaymentService {
    */
   async handleCallback(method: PaymentMethod, data: any): Promise<PaymentVerification> {
     const strategy = this.getStrategy(method);
+    
+    // Check if transaction exists and is already successful
+    if (data.orderId) {
+      const existingTransaction = await this.transactionRepo.findOne({
+        where: { orderId: data.orderId },
+      });
+      if (existingTransaction && existingTransaction.status === PaymentStatus.SUCCESS) {
+        throw new BadRequestException('Transaction has already been processed successfully');
+      }
+    }
+
     const verification = await strategy.handleCallback(data);
     
     if (verification.status === PaymentStatus.SUCCESS) {

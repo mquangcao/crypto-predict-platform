@@ -255,6 +255,10 @@ export class MomoPaymentStrategy extends BasePaymentStrategy {
         throw new NotFoundException(`Transaction with orderId ${data.orderId} not found`);
       }
 
+      if (transaction.status === PaymentStatus.SUCCESS) {
+        throw new BadRequestException('Transaction has already been completed');
+      }
+
       // Determine new status based on resultCode
       const newStatus = Number(data.resultCode) === 0 ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
       const previousStatus = transaction.status;
