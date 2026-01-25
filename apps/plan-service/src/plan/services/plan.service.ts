@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PlanEntity } from '../entities/plan.entity';
@@ -15,13 +15,19 @@ export class PlanService {
 
   async findAllActive(): Promise<PlanEntity[]> {
     return this.planRepo.find({
-      where: { isActive: true },
+      where: { 
+        isActive: true,
+        deletedAt: IsNull()
+      },
       order: { monthlyPrice: 'ASC' },
     });
   }
 
   async findAll(): Promise<PlanEntity[]> {
     return this.planRepo.find({
+      where: {
+        deletedAt: IsNull()
+      },
       order: { monthlyPrice: 'ASC' },
     });
   }
@@ -63,9 +69,9 @@ export class PlanService {
     return this.planRepo.save(plan);
   }
 
-  async softDelete(id: string): Promise<void> {
+  async delete(id: string): Promise<void> {
     const plan = await this.findById(id);
-    plan.isActive = false;
+    plan.deletedAt = new Date();
     await this.planRepo.save(plan);
   }
 }

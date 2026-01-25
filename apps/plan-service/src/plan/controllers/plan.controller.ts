@@ -112,15 +112,15 @@ export class PlanController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Soft delete plan (set isActive to false)' })
+  @ApiOperation({ summary: 'Hard delete plan' })
   @ApiOkResponse({
-    description: 'Plan deactivated successfully',
+    description: 'Plan deleted successfully',
   })
-  async softDelete(@Param('id') id: string) {
-    await this.planService.softDelete(id);
+  async delete(@Param('id') id: string) {
+    await this.planService.delete(id);
     return ResponseBuilder.createResponse({
       data: null,
-      message: 'Plan deactivated successfully',
+      message: 'Plan deleted successfully',
     });
   }
 }

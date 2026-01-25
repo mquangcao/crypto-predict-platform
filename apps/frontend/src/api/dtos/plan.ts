@@ -19,6 +19,29 @@ export const PlanSchema = z.object({
   updatedAt: z.string(),
 });
 
+// Create Plan DTO Schema
+export const CreatePlanSchema = z.object({
+  name: z.string(),
+  description: z.string().optional(),
+  features: z.array(z.string()).optional(),
+  monthlyPrice: z.number().min(0),
+  yearlyPrice: z.number().min(0),
+  isPopular: z.boolean().optional(),
+  tag: z.string().optional(),
+  cta: z.string().optional(),
+  href: z.string().optional(),
+  isActive: z.boolean().optional(),
+});
+
+// Update Plan DTO Schema
+export const UpdatePlanSchema = CreatePlanSchema.partial();
+
+// Discount Plan DTO Schema
+export const DiscountPlanSchema = z.object({
+  monthlyDiscountPrice: z.number().nullable().optional(),
+  yearlyDiscountPrice: z.number().nullable().optional(),
+});
+
 // Response Schema for list of plans
 export const PlansResponseSchema = z.object({
   statusCode: z.number(),

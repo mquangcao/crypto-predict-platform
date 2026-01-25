@@ -11,6 +11,7 @@ plugins:
         - PUT
         - DELETE
         - OPTIONS
+        - PATCH
       headers:
         - Accept
         - Accept-Version

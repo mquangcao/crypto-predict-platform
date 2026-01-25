@@ -45,4 +45,9 @@ export class CreatePlanDto {
   @IsString()
   @IsOptional()
   href?: string;
+
+  @ApiPropertyOptional({ example: true })
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
 }

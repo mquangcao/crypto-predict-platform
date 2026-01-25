@@ -218,11 +218,11 @@ export function PlansSection() {
               >
                 <Link
                   href={
-                    plan.isPopular && plan.href
-                      ? `${plan.href}?period=${
+                    plan.monthlyPrice === 0
+                      ? "/"
+                      : `/checkout?period=${
                           isYearly ? "yearly" : "monthly"
                         }&planId=${plan.id}`
-                      : plan.href || "/"
                   }
                   className="flex items-center gap-2 justify-center"
                 >
