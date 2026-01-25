@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/hooks";
+import { useAuth, useCheckVip } from "@/hooks";
 import { UserMenu } from "@/components/user-menu";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -18,6 +18,13 @@ const navItems: NavTabItem[] = [
 
 export function Topbar() {
   const { user, isAuthenticated, isInitialized } = useAuth();
+
+  const { data: vipData } = useCheckVip({
+    options: { enabled: isAuthenticated },
+  });
+
+  const isVip = !!vipData?.data && user?.role !== "ADMIN";
+  const isAdmin = user?.role === "ADMIN";
 
   if (!isInitialized) {
     return (
@@ -54,9 +61,9 @@ export function Topbar() {
               <div
                 className={cn(
                   "hidden sm:flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border transition-all duration-300 shadow-xs",
-                  user?.role === "ADMIN"
+                  isAdmin
                     ? "bg-indigo-100/50 border-indigo-200 text-indigo-800 shadow-indigo-200/20"
-                    : user?.role === "VIP"
+                    : isVip
                       ? "bg-amber-100/50 border-amber-200 text-amber-800 shadow-amber-100/20"
                       : "bg-slate-100/50 border-slate-200 text-slate-700 shadow-slate-200/20",
                 )}
@@ -64,23 +71,23 @@ export function Topbar() {
                 <div
                   className={cn(
                     "p-1 rounded-full flex items-center justify-center",
-                    user?.role === "ADMIN"
+                    isAdmin
                       ? "bg-indigo-200/50"
-                      : user?.role === "VIP"
+                      : isVip
                         ? "bg-amber-200/50"
                         : "bg-slate-200/50",
                   )}
                 >
-                  {user?.role === "ADMIN" ? (
+                  {isAdmin ? (
                     <ShieldCheck size={12} strokeWidth={3} />
-                  ) : user?.role === "VIP" ? (
+                  ) : isVip ? (
                     <Crown size={12} strokeWidth={3} />
                   ) : (
                     <UserIcon size={12} strokeWidth={3} />
                   )}
                 </div>
                 <span className="text-[10px] font-bold uppercase tracking-[0.1em]">
-                  {user?.role || "BASIC"}
+                  {isAdmin ? "ADMIN" : isVip ? "VIP" : "BASIC"}
                 </span>
               </div>
               <UserMenu />
