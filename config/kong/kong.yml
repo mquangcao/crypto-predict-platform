@@ -63,3 +63,11 @@ services:
         paths:
           - /api/news-ai
         strip_path: false
+
+  - name: plan-service
+    url: http://host.docker.internal:4006
+    routes:
+      - name: plan-route
+        paths:
+          - /api/plans
+        strip_path: false
