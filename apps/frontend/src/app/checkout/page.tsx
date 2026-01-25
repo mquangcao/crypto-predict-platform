@@ -81,7 +81,7 @@ function CheckoutContent() {
           method: "MOMO",
           planId: plan.id,
           interval: isYearly ? "year" : "month",
-          redirectUrl: `${window.location.origin}/account/billing`,
+          redirectUrl: `${window.location.origin}/payment-result`,
           description: `Upgrade to ${plan.name} (${period})`,
         },
       } as any);

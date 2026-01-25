@@ -256,7 +256,7 @@ export class MomoPaymentStrategy extends BasePaymentStrategy {
       }
 
       // Determine new status based on resultCode
-      const newStatus = data.resultCode === 0 ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
+      const newStatus = Number(data.resultCode) === 0 ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
       const previousStatus = transaction.status;
 
       // Update transaction
