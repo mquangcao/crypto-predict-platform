@@ -17,7 +17,7 @@ export const useGetPlans = createGetQueryHook({
   endpoint: "/plans",
   responseSchema: PlansResponseSchema,
   rQueryParams: {
-    queryKey: ["plans"],
+    queryKey: ["public-plans"],
   },
 });
 
@@ -25,7 +25,7 @@ export const useGetAdminPlans = createGetQueryHook({
   endpoint: "/plans/all",
   responseSchema: PlansResponseSchema,
   rQueryParams: {
-    queryKey: ["admin", "plans"] as [string, ...any[]],
+    queryKey: ["admin-plans"],
   },
 });
 

@@ -43,8 +43,10 @@ export default function AdminPlansPage() {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDiscountDialogOpen, setIsDiscountDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<any>(null);
   const [discountingPlan, setDiscountingPlan] = useState<any>(null);
+  const [deletingPlan, setDeletingPlan] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -110,6 +112,11 @@ export default function AdminPlansPage() {
     setIsDiscountDialogOpen(true);
   };
 
+  const handleOpenDelete = (plan: any) => {
+    setDeletingPlan(plan);
+    setIsDeleteDialogOpen(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const action = editingPlan
@@ -122,8 +129,8 @@ export default function AdminPlansPage() {
     toast.promise(action, {
       loading: "Saving plan changes...",
       success: () => {
-        queryClient.invalidateQueries({ queryKey: ["admin", "plans"] });
-        queryClient.invalidateQueries({ queryKey: ["plans"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
+        queryClient.invalidateQueries({ queryKey: ["public-plans"] });
         setIsDialogOpen(false);
         return "Plan updated successfully.";
       },
@@ -154,7 +161,8 @@ export default function AdminPlansPage() {
     toast.promise(action, {
       loading: "Applying discount settings...",
       success: () => {
-        queryClient.invalidateQueries({ queryKey: ["admin", "plans"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
+        queryClient.invalidateQueries({ queryKey: ["public-plans"] });
         setIsDiscountDialogOpen(false);
         return "Discounts updated.";
       },
@@ -162,16 +170,18 @@ export default function AdminPlansPage() {
     });
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this plan?")) return;
+  const handleDelete = async () => {
+    if (!deletingPlan?.id) return;
     const action = deletePlan.mutateAsync({
-      route: { id },
+      route: { id: deletingPlan.id },
       model: {} as any,
     } as any);
     toast.promise(action, {
       loading: "Deleting plan...",
       success: () => {
-        queryClient.invalidateQueries({ queryKey: ["admin", "plans"] });
+        queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
+        queryClient.invalidateQueries({ queryKey: ["public-plans"] });
+        setIsDeleteDialogOpen(false);
         return "Plan deleted.";
       },
       error: "Failed to delete plan.",
@@ -312,7 +322,7 @@ export default function AdminPlansPage() {
                       </Button>
                       <Button
                         variant="outline"
-                        onClick={() => handleDelete(p.id)}
+                        onClick={() => handleOpenDelete(p)}
                         className="h-11 w-11 rounded-none border-slate-200 bg-white hover:text-rose-600 flex items-center justify-center shrink-0"
                       >
                         <Trash2 size={16} />
@@ -346,7 +356,7 @@ export default function AdminPlansPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col font-sans">
-            <div className="p-8 space-y-8 overflow-y-auto max-h-[70vh] custom-scrollbar">
+            <div className="p-6 space-y-6 overflow-y-auto max-h-[50vh] custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-slate-50 pb-8">
                 <div className="space-y-4">
                   <Label className="text-[11px] font-bold uppercase tracking-widest text-indigo-600">
@@ -641,6 +651,41 @@ export default function AdminPlansPage() {
               Apply Discounts <ShieldCheck size={18} />
             </Button>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[400px] bg-white border border-slate-200 rounded-none p-8 font-sans">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-lg font-bold text-slate-900 uppercase tracking-tight">
+                Delete Plan?
+              </h2>
+              <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                Confirming will permanently remove{" "}
+                <span className="font-bold text-slate-950">
+                  "{deletingPlan?.name}"
+                </span>
+                . This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={handleDelete}
+                className="flex-1 h-12 rounded-none bg-rose-600 hover:bg-rose-700 text-white font-bold uppercase tracking-widest text-[10px]"
+              >
+                Delete
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setIsDeleteDialogOpen(false)}
+                className="flex-1 h-12 rounded-none border-slate-200 font-bold uppercase text-[10px] tracking-widest text-slate-400 hover:text-slate-900"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
