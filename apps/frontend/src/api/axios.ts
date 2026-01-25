@@ -10,6 +10,18 @@ export const client = axios.create({
   },
 });
 
+// Add request interceptor to dynamically add token
+client.interceptors.request.use((config) => {
+  const token =
+    localStorage.getItem(app.accessTokenStoreKey) ??
+    sessionStorage.getItem(app.accessTokenStoreKey);
+
+  if (token && !config.headers.authorization) {
+    config.headers.authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 let rememberMe = true;
 
 export function setRememberMe(value: boolean) {
@@ -24,18 +36,11 @@ export function setClientAccessToken(token: string) {
     sessionStorage.setItem(app.accessTokenStoreKey, token);
     localStorage.removeItem(app.accessTokenStoreKey);
   }
-
-  if (token) {
-    client.defaults.headers.common.authorization = `Bearer ${token}`;
-  } else {
-    delete client.defaults.headers.common.authorization;
-  }
 }
 
 export function removeClientAccessToken() {
   localStorage.removeItem(app.accessTokenStoreKey);
   sessionStorage.removeItem(app.accessTokenStoreKey);
-  delete client.defaults.headers.common.authorization;
 }
 
 export function setClientRefreshToken(token: string) {
@@ -130,16 +135,11 @@ client.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export function loadAccessToken() {
-  const token =
-    localStorage.getItem(app.accessTokenStoreKey) ??
-    sessionStorage.getItem(app.accessTokenStoreKey);
-  if (token) {
-    client.defaults.headers.common.authorization = `Bearer ${token}`;
-  }
+  // Now handled by request interceptor
 }
 
 export function getClientAccessToken() {

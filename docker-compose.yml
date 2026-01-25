@@ -76,6 +76,7 @@ services:
       - auth-db
       - user-db
       - news-db
+      - subscription-db
 
 networks:
   nest:
