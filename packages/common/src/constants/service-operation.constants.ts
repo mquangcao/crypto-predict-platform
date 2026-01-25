@@ -17,3 +17,7 @@ export const NEWS_OPERATION = {
 export const PLAN_OPERATION = {
   GET_PLAN_FOR_PAYMENT: "get-plan-for-payment",
 };
+
+export const PAYMENT_EVENT = {
+  PAYMENT_SUCCESS: "payment-success",
+};
