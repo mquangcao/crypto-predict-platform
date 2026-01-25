@@ -13,3 +13,7 @@ export const NEWS_OPERATION = {
   GET_NEWS_BY_SYMBOL: "get-news-by-symbol",
   TRIGGER_CRAWL: "trigger-crawl",
 };
+
+export const PLAN_OPERATION = {
+  GET_PLAN_FOR_PAYMENT: "get-plan-for-payment",
+};

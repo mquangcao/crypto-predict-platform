@@ -74,4 +74,37 @@ export class PlanService {
     plan.deletedAt = new Date();
     await this.planRepo.save(plan);
   }
+
+  async getPlanForPayment(planId: string, interval: 'month' | 'year') {
+    const plan = await this.findById(planId);
+
+    const basePrice =
+      interval === 'month'
+        ? Number(plan.monthlyPrice)
+        : Number(plan.yearlyPrice);
+    const discountPrice =
+      interval === 'month'
+        ? plan.monthlyDiscountPrice
+        : plan.yearlyDiscountPrice;
+
+    let finalPrice = basePrice;
+    if (discountPrice !== null && discountPrice !== undefined) {
+      const d = Number(discountPrice);
+      if (d > 0) {
+        if (d <= 1) {
+          finalPrice = basePrice * d;
+        } else {
+          finalPrice = d;
+        }
+      }
+    }
+
+    return {
+      id: plan.id,
+      name: plan.name,
+      price: Math.round(finalPrice),
+      interval,
+      currency: 'VND',
+    };
+  }
 }
