@@ -72,3 +72,11 @@ services:
         paths:
           - /api/plans
         strip_path: false
+
+  - name: payment-service
+    url: http://host.docker.internal:4005
+    routes:
+      - name: payment-route
+        paths:
+          - /api/payments
+        strip_path: false

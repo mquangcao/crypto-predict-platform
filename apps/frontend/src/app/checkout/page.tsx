@@ -9,8 +9,9 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AuthGuard } from "@/guards/auth-guard";
 
-import { useGetPlan } from "@/hooks";
+import { useGetPlan, useInitiateUpgrade } from "@/hooks";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
@@ -26,6 +27,8 @@ function CheckoutContent() {
     route: { id: planId || "" },
     rQueryParams: { enabled: !!planId },
   } as any);
+
+  const initiateUpgrade = useInitiateUpgrade();
 
   const plan = planResponse?.data;
 
@@ -71,17 +74,32 @@ function CheckoutContent() {
   const basePrice = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
   const totalPrice = getPrice();
 
-  const handlePayment = () => {
-    console.log("Initiating MoMo payment...", {
-      planId: plan.id,
-      planName: plan.name,
-      period: period,
-      basePrice: basePrice,
-      totalAmount: totalPrice,
-      currency: "VND",
-      timestamp: new Date().toISOString(),
-    });
-    alert(`Redirecting to MoMo for ${plan.name} (${period})...`);
+  const handlePayment = async () => {
+    try {
+      const promise = initiateUpgrade.mutateAsync({
+        variables: {
+          method: "MOMO",
+          planId: plan.id,
+          interval: isYearly ? "year" : "month",
+          redirectUrl: `${window.location.origin}/account/billing`,
+          description: `Upgrade to ${plan.name} (${period})`,
+        },
+      } as any);
+
+      toast.promise(promise, {
+        loading: "Initializing MoMo payment...",
+        success: (result: any) => {
+          if (result.data.success && result.data.paymentUrl) {
+            window.location.href = result.data.paymentUrl;
+            return "Redirecting to MoMo...";
+          }
+          throw new Error(result.data.message || "Failed to get payment URL");
+        },
+        error: (err) => err.message || "Failed to initiate payment",
+      });
+    } catch (err) {
+      console.error("Payment error:", err);
+    }
   };
 
   return (
@@ -170,9 +188,17 @@ function CheckoutContent() {
 
             <Button
               onClick={handlePayment}
-              className="w-full h-16 rounded-2xl bg-slate-950 text-white font-black uppercase tracking-[0.2em] hover:bg-pink-600 transition-all shadow-xl shadow-slate-200"
+              disabled={initiateUpgrade.isPending}
+              className="w-full h-16 rounded-2xl bg-slate-950 text-white font-black uppercase tracking-[0.2em] hover:bg-pink-600 transition-all shadow-xl shadow-slate-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
             >
-              Proceed to MoMo
+              {initiateUpgrade.isPending ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin text-white" />
+                  Processing...
+                </>
+              ) : (
+                "Proceed to MoMo"
+              )}
             </Button>
 
             <div className="flex items-center justify-center gap-2 text-[10px] font-black text-slate-300 uppercase tracking-widest">

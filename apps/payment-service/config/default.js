@@ -48,7 +48,14 @@ module.exports = {
             host: 'localhost',
             port: 8005,
           },
-        }
+        },
+        plan: {
+          transport: 0,
+          options: {
+            host: 'localhost',
+            port: 8006,
+          },
+        },
       },
     },
   },

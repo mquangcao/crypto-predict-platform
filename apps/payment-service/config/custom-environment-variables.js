@@ -68,7 +68,14 @@ module.exports = {
             host: json('CORE_GATEWAY_SERVICES_PAYMENT_OPTIONS_HOST'),
             port: number('CORE_GATEWAY_SERVICES_PAYMENT_OPTIONS_PORT'),
           },
-        }
+        },
+        plan: {
+          transport: number('CORE_GATEWAY_SERVICES_PLAN_TRANSPORT'),
+          options: {
+            host: json('CORE_GATEWAY_SERVICES_PLAN_OPTIONS_HOST'),
+            port: number('CORE_GATEWAY_SERVICES_PLAN_OPTIONS_PORT'),
+          },
+        },
       },
     },
   },
