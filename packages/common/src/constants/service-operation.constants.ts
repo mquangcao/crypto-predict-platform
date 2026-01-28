@@ -20,4 +20,5 @@ export const PLAN_OPERATION = {
 
 export const SUBSCRIPTION_OPERATION = {
   ACTIVATE_SUBSCRIPTION: "activate-subscription",
+  CHECK_VIP: "check-vip",
 };
