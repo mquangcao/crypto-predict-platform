@@ -48,17 +48,22 @@ export class MarketService {
 
     const url = `${this.BINANCE_BASE_URL}/api/v3/klines`;
 
-    try {
-      const res = await axios.get(url, {
-        params: {
-          symbol,
-          interval,
-          limit,
-        },
-        timeout: 5000,
-      });
+    // Retry configuration
+    const maxRetries = 3;
+    let lastError: any;
 
-      const data = res.data as any[];
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const res = await axios.get(url, {
+          params: {
+            symbol,
+            interval,
+            limit,
+          },
+          timeout: 15000, // Increased from 5s to 15s
+        });
+
+        const data = res.data as any[];
 
       // Binance kline format:
       // [ openTime, open, high, low, close, volume, closeTime, ... ]
@@ -71,14 +76,33 @@ export class MarketService {
         volume: parseFloat(k[5]),
       }));
 
-      return candles;
-    } catch (error: any) {
-      this.logger.error(
-        `Error fetching klines from Binance for ${symbol} ${timeframe}`,
-        error?.message,
-      );
-      throw error;
+        return candles;
+      } catch (error: any) {
+        lastError = error;
+        
+        if (attempt < maxRetries) {
+          // Exponential backoff: 1s, 2s, 4s
+          const delay = Math.pow(2, attempt - 1) * 1000;
+          this.logger.warn(
+            `Attempt ${attempt}/${maxRetries} failed for ${symbol} ${timeframe}. ` +
+            `Retrying in ${delay}ms... Error: ${error?.message}`,
+          );
+          await this.sleep(delay);
+        } else {
+          this.logger.error(
+            `All ${maxRetries} attempts failed for ${symbol} ${timeframe}`,
+            error?.message,
+          );
+        }
+      }
     }
+    
+    // If all retries failed, throw the last error
+    throw lastError;
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   async getCurrentPrice(symbol: string): Promise<CurrentPrice> {

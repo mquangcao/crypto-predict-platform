@@ -1,5 +1,5 @@
 import { ICommand } from '@nestjs/cqrs';
-import { IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsDateString } from 'class-validator';
 
 export class GetCandlesCommand implements ICommand {
   @IsString()
@@ -12,4 +12,12 @@ export class GetCandlesCommand implements ICommand {
   @IsOptional()
   @IsNumber()
   limit?: number;
+
+  @IsOptional()
+  @IsDateString()
+  startTime?: string;
+
+  @IsOptional()
+  @IsDateString()
+  endTime?: string;
 }

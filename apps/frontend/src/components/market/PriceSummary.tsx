@@ -26,7 +26,7 @@ export function PriceSummary({ symbol, timeframe }: Props) {
     async function fetchSummary() {
       setLoading(true);
       try {
-        const url = `http://localhost:4002/market/candles?symbol=${symbol}&tf=${timeframe}&limit=200`;
+        const url = `/api/market/candles?symbol=${symbol}&tf=${timeframe}&limit=200`;
         console.log("[PriceSummary] Fetch:", url);
 
         const res = await fetch(url);

@@ -1,4 +1,4 @@
-export type Timeframe = '1m' | '5m' | '1h' | '1d';
+export type Timeframe = '1m' | '5m' | '15m' | '1h' | '1d';
 
 export interface Candle {
   time: number; // unix seconds

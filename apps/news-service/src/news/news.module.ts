@@ -8,8 +8,15 @@ import { NewsController } from './controllers/news.controller';
 import { NewsService } from './services/news.service';
 import { ImpactSchedulerService } from './services/impact-scheduler.service';
 import { SentimentQueueService } from './services/sentiment-queue.service';
+import { AiHtmlParserService } from './services/ai-html-parser.service';
 import { NewsArticle } from './entities/news-article.entity';
+import { HtmlPattern } from './entities/html-pattern.entity';
 import { CryptoCompareService } from './providers/cryptocompare.service';
+import { CoinDeskCrawlerService } from './providers/coindesk-crawler.service';
+import { CoinTelegraphCrawlerService } from './providers/cointelegraph-crawler.service';
+import { DecryptCrawlerService } from './providers/decrypt-crawler.service';
+import { TheBlockCrawlerService } from './providers/theblock-crawler.service';
+import { BitcoinComCrawlerService } from './providers/bitcoin-com-crawler.service';
 import { 
   AwsSchedulerClientProvider,
   AwsSqsClientProvider 
@@ -27,11 +34,28 @@ const CommandHandlers = [
   TriggerCrawlHandler,
 ];
 
+// Factory để tạo danh sách crawlers
+const newsCrawlersProvider = {
+  provide: 'NEWS_CRAWLERS',
+  useFactory: (
+    aiParser: AiHtmlParserService,
+  ) => {
+    return [
+      new CoinDeskCrawlerService(aiParser),
+      new CoinTelegraphCrawlerService(aiParser),
+      new DecryptCrawlerService(aiParser),
+      new TheBlockCrawlerService(aiParser),
+      new BitcoinComCrawlerService(aiParser),
+    ];
+  },
+  inject: [AiHtmlParserService],
+};
+
 @Module({
   imports: [
     CqrsModule,
     GatewayModule.forFeature(OperationsMap),
-    TypeOrmModule.forFeature([NewsArticle]),
+    TypeOrmModule.forFeature([NewsArticle, HtmlPattern]),
     HttpModule,
   ],
   controllers: [NewsController],
@@ -41,7 +65,9 @@ const CommandHandlers = [
     NewsService, 
     ImpactSchedulerService,
     SentimentQueueService,
-    CryptoCompareService, 
+    AiHtmlParserService,
+    CryptoCompareService,
+    newsCrawlersProvider,
     ...CommandHandlers
   ],
   exports: [NewsService],

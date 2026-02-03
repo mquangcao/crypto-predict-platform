@@ -1,6 +1,16 @@
 module.exports = {
   port: 4005,
   appName: 'market-service',
+  database: {
+    type: 'postgres',
+    host: 'localhost',
+    port: 5436,
+    username: 'postgres',
+    password: 'postgres',
+    dbName: 'market_db',
+    synchronize: true,
+    logging: false,
+  },
   core: {
     gateway: {
       initServices: ['market'],
