@@ -11,11 +11,22 @@ module.exports = {
     synchronize: true,
     logging: false,
   },
-  token: {
-    expiresIn: 3600,
-    refreshExpiresIn: 3600 * 24 * 30, // 30 days
-    secret: 'your-very-secure-secret',
+
+  auth: {
+    token: {
+      expiresIn: 3600,
+      refreshExpiresIn: 3600 * 24 * 30, // 30 days
+      secret: 'your-very-secure-secret',
+    },
+    openid: {
+      google: {
+        clientId: 'your-google-client-id',
+        clientSecret: 'your-google-client-secret',
+        callbackUrl: 'http://localhost:8000/api/auth/google/callback',
+      },
+    }
   },
+  
   core: {
     gateway: {
       initServices: ['auth'],

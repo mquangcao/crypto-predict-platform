@@ -1,28 +1,23 @@
-import { GoogleIcon, KeycloakIcon } from '@/components/icons';
-import { Button } from '@/components/ui/button';
+import { GoogleIcon } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 
 export interface SocialLoginButton {
-  provider: 'google' | 'keycloak';
+  provider: "google" | "keycloak";
   label: string;
   icon: React.ComponentType<{ className?: string }>;
 }
 
 export const socialData: SocialLoginButton[] = [
   {
-    provider: 'google',
-    label: 'Google',
+    provider: "google",
+    label: "Login with Google",
     icon: GoogleIcon,
-  },
-  {
-    provider: 'keycloak',
-    label: 'Keycloak',
-    icon: KeycloakIcon,
   },
 ];
 
 interface SocialLoginButtonsProps {
   providers: SocialLoginButton[];
-  onSocialLogin: (provider: 'google' | 'keycloak') => void;
+  onSocialLogin: (provider: "google" | "keycloak") => void;
   disabled?: boolean;
   className?: string;
 }
@@ -34,7 +29,7 @@ export function SocialLoginButtons({
   className,
 }: SocialLoginButtonsProps) {
   return (
-    <div className={`grid grid-cols-2 gap-3 ${className || ''}`}>
+    <div className={`grid ${className || ""}`}>
       {providers.map(({ provider, label, icon: Icon }) => (
         <Button
           key={provider}

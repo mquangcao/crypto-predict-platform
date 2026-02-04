@@ -9,6 +9,7 @@ import { SubmitButton } from "@/components/buttons";
 import { SocialLoginButtons, socialData } from "./social-login-buttons";
 import { useAuth, useLogin } from "@/hooks";
 import { setRememberMe } from "@/api/axios";
+import { app } from "@/config";
 
 // Simple form schema
 const LoginFormSchema = z.object({
@@ -54,8 +55,10 @@ export function LoginForm({ onSuccess, className }: LoginFormProps) {
     });
   });
 
-  const handleSocialLogin = (provider: "google" | "keycloak") => {
-    console.log(`Social login with ${provider}`);
+  const handleSocialLogin = () => {
+    const callbackUrl = `${window.location.origin}/google-callback`;
+    // Redirect to backend Google OAuth endpoint with redirect_uri
+    window.location.href = `${app.apiBaseUrl}/auth/google?redirect_uri=${encodeURIComponent(callbackUrl)}`;
   };
 
   return (

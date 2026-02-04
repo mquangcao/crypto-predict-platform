@@ -10,8 +10,8 @@ import { DatabaseModule } from './database/database.module';
     CoreModule.forRoot(),
     DatabaseModule,
     AuthModule.forRoot({
-      jwtSecret: getConfig('token.secret'),
-      jwtExpiresIn: getConfig('token.expiresIn'),
+      jwtSecret: getConfig('auth.token.secret'),
+      jwtExpiresIn: getConfig('auth.token.expiresIn'),
     }),
   ],
 })

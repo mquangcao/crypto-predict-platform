@@ -14,8 +14,8 @@ export interface GeneratedTokens {
 
 @Injectable()
 export class TokenService {
-  private readonly ACCESS_TOKEN_EXPIRES_IN = getConfig('token.expiresIn');
-  private readonly REFRESH_TOKEN_EXPIRES_IN = getConfig('token.refreshExpiresIn');
+  private readonly ACCESS_TOKEN_EXPIRES_IN = getConfig('auth.token.expiresIn');
+  private readonly REFRESH_TOKEN_EXPIRES_IN = getConfig('auth.token.refreshExpiresIn');
 
   constructor(private readonly jwtService: JwtService) {}
 
@@ -45,5 +45,9 @@ export class TokenService {
 
   getRefreshTokenExpiresIn(): number {
     return this.REFRESH_TOKEN_EXPIRES_IN;
+  }
+
+  generateRandomToken(): string {
+    return uuidv4();
   }
 }

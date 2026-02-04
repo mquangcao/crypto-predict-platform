@@ -6,6 +6,7 @@ import {
   setClientRefreshToken,
 } from "@/api/axios";
 import {
+  ExchangeOAuthCodeRequestSchema,
   LoginRequestSchema,
   LoginResponseSchema,
   RefreshTokenRequestSchema,
@@ -89,3 +90,19 @@ export const useLogoutWithRefreshToken = () => {
     mutate: logout,
   };
 };
+
+export const useExchangeOAuthCode = createPostMutationHook({
+  endpoint: "/auth/oauth/exchange",
+  bodySchema: ExchangeOAuthCodeRequestSchema,
+  responseSchema: LoginResponseSchema,
+  rMutationParams: {
+    onSuccess: (res) => {
+      setClientAccessToken(res.data.access_token);
+      setClientRefreshToken(res.data.refresh_token);
+      toast.success("Successfully logged in with Google");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Google login failed");
+    },
+  },
+});

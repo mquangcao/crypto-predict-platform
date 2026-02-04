@@ -10,7 +10,10 @@ import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { UserRoleToTokenRoleMapper } from './mapper/token-role.mapper';
 import { AuthService } from './services/auth.service';
 import { TokenService } from './services/token.service';
-import { LocalStrategy } from './strategies';
+import { GoogleStrategy, LocalStrategy } from './strategies';
+import { OAuthTempCodeEntity } from './entities/oauth-temp-code.entity';
+import { OpenIdController } from './controllers/openid.controller';
+import { OpenIdService } from './services/openid.service';
 
 export interface AuthModuleOptions {
   jwtSecret: string;
@@ -22,19 +25,21 @@ export class AuthModule {
     return {
       module: AuthModule,
       imports: [
-        TypeOrmModule.forFeature([RefreshTokenEntity]),
+        TypeOrmModule.forFeature([RefreshTokenEntity, OAuthTempCodeEntity]),
         JwtModule.register({
           secret: options.jwtSecret,
           signOptions: { expiresIn: options.jwtExpiresIn || 3600 },
         }),
         GatewayModule.forFeature(OperationsMap),
       ],
-      controllers: [AuthController],
+      controllers: [AuthController, OpenIdController],
       providers: [
         AuthService,
         TokenService,
         UserRoleToTokenRoleMapper,
         LocalStrategy,
+        GoogleStrategy,
+        OpenIdService,
         ...CommandHandlers,
       ],
       exports: [AuthService, TokenService, UserRoleToTokenRoleMapper, TypeOrmModule],
