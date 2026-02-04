@@ -8,14 +8,14 @@ const menus = [
   { id: "dashboard", label: "Dashboard", path: "/" },
   { id: "market", label: "Thị trường", path: "/" },
   { id: "news", label: "Tin tức", path: "/news" },
-  { id: "ai", label: "AI Insight", path: "/" },
+  { id: "ai", label: "AI Insights", path: "/ai" },
 ];
 
 export function Sidebar() {
   const router = useRouter();
   const [active, setActive] = useState("dashboard");
 
-  const handleMenuClick = (item: typeof menus[0]) => {
+  const handleMenuClick = (item: (typeof menus)[0]) => {
     setActive(item.id);
     if (item.path) {
       router.push(item.path);
@@ -38,7 +38,7 @@ export function Sidebar() {
               "w-full flex items-center rounded-lg px-3 py-2 text-sm transition",
               active === item.id
                 ? "bg-slate-800 text-white"
-                : "text-slate-300 hover:bg-slate-800/60 hover:text-white"
+                : "text-slate-300 hover:bg-slate-800/60 hover:text-white",
             )}
           >
             {item.label}

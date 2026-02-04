@@ -50,6 +50,10 @@ module.exports = {
         apiKey: process.env.CRYPTOCOMPARE_API_KEY || '',
       },
     },
+    ai: {
+      openaiApiKey: process.env.OPENAI_API_KEY || '',
+      model: 'gpt-4o-mini', // Cost-effective model for HTML parsing
+    },
   },
   aws: {
     region: process.env.AWS_REGION || 'ap-southeast-2',

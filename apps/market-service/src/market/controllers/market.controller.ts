@@ -5,7 +5,8 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
-import { MarketService, Timeframe } from './market.service';
+import { MarketService } from '../services/market.service';
+import { Timeframe } from '../interfaces/market-service.interface';
 
 @Controller('market')
 export class MarketController {

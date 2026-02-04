@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Topbar } from "@/components/layout/Topbar";
+import { Sidebar } from "../../components/layout/Sidebar";
+import { Topbar } from "../../components/layout/Topbar";
 
 interface NewsItem {
   id: string;
@@ -16,10 +16,9 @@ interface NewsItem {
 }
 
 interface NewsResponse {
+  statusCode: number;
+  message: string;
   data: NewsItem[];
-  total: number;
-  page: number;
-  totalPages: number;
 }
 
 const sentimentColor: Record<string, string> = {
@@ -28,28 +27,23 @@ const sentimentColor: Record<string, string> = {
   neutral: "text-slate-300 bg-slate-600/20 border-slate-600/30",
 };
 
+const LIMIT = 50;
+
 export default function NewsPage() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
+  const [displayCount, setDisplayCount] = useState(10);
 
-  const fetchNews = async (pageNum: number) => {
+  const fetchNews = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        `http://localhost:3002/news?page=${pageNum}&limit=10`,
-      );
-      const data: NewsResponse = await response.json();
+      const response = await fetch(`/api/news?limit=${LIMIT}`);
+      const result: NewsResponse = await response.json();
 
-      if (data.data && Array.isArray(data.data)) {
-        setNews(data.data);
-        setTotalPages(data.totalPages);
-        setTotal(data.total);
-        setPage(data.page);
+      if (result.data && Array.isArray(result.data)) {
+        setNews(result.data);
       } else {
-        console.error("API response is not in expected format:", data);
+        console.error("API response is not in expected format:", result);
         setNews([]);
       }
     } catch (error) {
@@ -61,22 +55,14 @@ export default function NewsPage() {
   };
 
   useEffect(() => {
-    fetchNews(1);
+    fetchNews();
     // Refresh mỗi 5 phút
-    const interval = setInterval(() => fetchNews(page), 5 * 60 * 1000);
+    const interval = setInterval(() => fetchNews(), 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
-  const handleNextPage = () => {
-    if (page < totalPages) {
-      fetchNews(page + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (page > 1) {
-      fetchNews(page - 1);
-    }
+  const handleLoadMore = () => {
+    setDisplayCount((prev) => Math.min(prev + 10, news.length));
   };
 
   return (
@@ -93,11 +79,12 @@ export default function NewsPage() {
                 Tin tức Crypto
               </h1>
               <p className="text-slate-400">
-                Cập nhật tin tức mới nhất từ thị trường tiền điện tử
+                Cập nhật tin tức mới nhất từ thị trường tiền điện tử với AI
+                predictions
               </p>
-              {total > 0 && (
+              {news.length > 0 && (
                 <p className="text-sm text-slate-500 mt-2">
-                  Tổng cộng {total} tin tức
+                  Hiển thị {displayCount} / {news.length} tin tức
                 </p>
               )}
             </div>
@@ -113,7 +100,7 @@ export default function NewsPage() {
             {!loading && news.length > 0 && (
               <>
                 <div className="grid gap-4 mb-8">
-                  {news.map((item) => (
+                  {news.slice(0, displayCount).map((item) => (
                     <article
                       key={item.id}
                       className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:bg-slate-900/80 transition-all cursor-pointer hover:border-indigo-500/50"
@@ -157,30 +144,17 @@ export default function NewsPage() {
                   ))}
                 </div>
 
-                {/* Pagination */}
-                <div className="flex items-center justify-between bg-slate-900/50 border border-slate-800 rounded-xl p-4">
-                  <button
-                    onClick={handlePrevPage}
-                    disabled={page === 1}
-                    className="px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
-                  >
-                    ← Trang trước
-                  </button>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400">Trang</span>
-                    <span className="text-white font-semibold">{page}</span>
-                    <span className="text-slate-400">/ {totalPages}</span>
+                {/* Load More */}
+                {displayCount < news.length && (
+                  <div className="flex justify-center">
+                    <button
+                      onClick={handleLoadMore}
+                      className="px-8 py-3 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 transition font-medium"
+                    >
+                      Xem thêm ({news.length - displayCount} tin còn lại)
+                    </button>
                   </div>
-
-                  <button
-                    onClick={handleNextPage}
-                    disabled={page === totalPages}
-                    className="px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
-                  >
-                    Trang sau →
-                  </button>
-                </div>
+                )}
               </>
             )}
 

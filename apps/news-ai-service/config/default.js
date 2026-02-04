@@ -12,18 +12,41 @@ module.exports = {
     logging: false,
   },
   aws: {
-    region: process.env.AWS_REGION || 'ap-southeast-2',
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+    region: 'ap-southeast-2',
+    accessKeyId: '',
+    secretAccessKey: '',
     sqs: {
-      sentimentQueueUrl: process.env.SQS_SENTIMENT_QUEUE_URL || '',
+      sentimentQueueUrl: '',
+      impactQueueUrl: '',
       maxMessages: 10,
       waitTimeSeconds: 20,
       visibilityTimeout: 30,
     },
+    s3: {
+      trainingBucket: 'crypto-news-datalake-training',
+    },
+    sagemaker: {
+      endpointName: 'crypto-price-predictor-v1',
+    },
+  },
+  training: {
+    uploadEnabled: false,
   },
   sentiment: {
     model: 'vader', // vader, bert, gpt
     enabled: true,
+  },
+  core: {
+    gateway: {
+      services: {
+        market: {
+          transport: 0,
+          options: {
+            host: 'localhost',
+            port: 8004,
+          },
+        },
+      },
+    },
   },
 };

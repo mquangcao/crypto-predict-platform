@@ -55,7 +55,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <AiInsightPanel />
+              <AiInsightPanel symbol={symbol} timeframe={timeframe} />
             </section>
           </div>
         </main>

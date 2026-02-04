@@ -12,10 +12,9 @@ interface NewsItem {
 }
 
 interface NewsResponse {
+  statusCode: number;
+  message: string;
   data: NewsItem[];
-  total: number;
-  page: number;
-  totalPages: number;
 }
 
 const sentimentColor: Record<string, string> = {
@@ -27,21 +26,17 @@ const sentimentColor: Record<string, string> = {
 export function NewsList() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchNews = async (pageNum: number) => {
+  const fetchNews = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3002/news?page=${pageNum}&limit=10`);
-      const data: NewsResponse = await response.json();
-      
-      if (data.data && Array.isArray(data.data)) {
-        setNews(data.data);
-        setTotalPages(data.totalPages);
-        setPage(data.page);
+      const response = await fetch(`/api/news?limit=10`);
+      const result: NewsResponse = await response.json();
+
+      if (result.data && Array.isArray(result.data)) {
+        setNews(result.data);
       } else {
-        console.error("API response is not in expected format:", data);
+        console.error("API response is not in expected format:", result);
         setNews([]);
       }
     } catch (error) {
@@ -53,23 +48,11 @@ export function NewsList() {
   };
 
   useEffect(() => {
-    fetchNews(1);
+    fetchNews();
     // Refresh mỗi 5 phút
-    const interval = setInterval(() => fetchNews(page), 5 * 60 * 1000);
+    const interval = setInterval(() => fetchNews(), 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
-
-  const handleNextPage = () => {
-    if (page < totalPages) {
-      fetchNews(page + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (page > 1) {
-      fetchNews(page - 1);
-    }
-  };
 
   if (loading) {
     return (
@@ -89,7 +72,9 @@ export function NewsList() {
             onClick={() => n.url && window.open(n.url, "_blank")}
           >
             <div className="flex items-center justify-between mb-0.5">
-              <span className="text-[11px] text-slate-400">{n.source}</span>
+              <span className="text-[11px] text-slate-400 flex-shrink-0">
+                {n.source}
+              </span>
               <span
                 className={
                   "px-1.5 py-0.5 rounded-full text-[10px] capitalize " +
@@ -104,27 +89,6 @@ export function NewsList() {
           </li>
         ))}
       </ul>
-      
-      {/* Pagination controls */}
-      <div className="mt-4 flex items-center justify-between border-t border-slate-800 pt-3">
-        <button
-          onClick={handlePrevPage}
-          disabled={page === 1}
-          className="px-3 py-1 text-xs rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-        >
-          Trước
-        </button>
-        <span className="text-xs text-slate-400">
-          Trang {page} / {totalPages}
-        </span>
-        <button
-          onClick={handleNextPage}
-          disabled={page === totalPages}
-          className="px-3 py-1 text-xs rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-        >
-          Sau
-        </button>
-      </div>
     </div>
   );
 }

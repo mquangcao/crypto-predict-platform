@@ -13,3 +13,9 @@ export const NEWS_OPERATION = {
   GET_NEWS_BY_SYMBOL: "get-news-by-symbol",
   TRIGGER_CRAWL: "trigger-crawl",
 };
+
+export const MARKET_OPERATION = {
+  GET_SYMBOLS: "market.getSymbols",
+  GET_CANDLES: "market.getCandles",
+  GET_CURRENT_PRICE: "market.getCurrentPrice",
+};

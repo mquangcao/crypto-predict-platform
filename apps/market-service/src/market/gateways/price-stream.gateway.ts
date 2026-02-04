@@ -6,17 +6,13 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { Logger } from '@nestjs/common';
-import {
-  BinanceStreamService,
-  PriceUpdate,
-} from './binance-stream.service';
+import { getConfig } from '@app/common';
+import { BinanceStreamService } from '../services/binance-stream.service';
+import { PriceUpdate } from '../interfaces/market-service.interface';
 
 @WebSocketGateway({
   namespace: 'price',
-  cors: {
-    origin: 'http://localhost:3000',
-    credentials: false,
-  },
+  cors: getConfig('market.websocket.cors'),
 })
 export class PriceStreamGateway
   implements OnGatewayConnection, OnGatewayDisconnect
