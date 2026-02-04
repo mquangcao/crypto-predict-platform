@@ -21,4 +21,8 @@ export const PLAN_OPERATION = {
 export const SUBSCRIPTION_OPERATION = {
   ACTIVATE_SUBSCRIPTION: "activate-subscription",
   CHECK_VIP: "check-vip",
+export const MARKET_OPERATION = {
+  GET_SYMBOLS: "market.getSymbols",
+  GET_CANDLES: "market.getCandles",
+  GET_CURRENT_PRICE: "market.getCurrentPrice",
 };

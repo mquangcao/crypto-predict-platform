@@ -21,12 +21,36 @@ module.exports = {
     secretAccessKey: 'AWS_SECRET_ACCESS_KEY',
     sqs: {
       sentimentQueueUrl: 'SQS_SENTIMENT_QUEUE_URL',
+      impactQueueUrl: 'SQS_IMPACT_QUEUE_URL',
       maxMessages: number('SQS_MAX_MESSAGES'),
       waitTimeSeconds: number('SQS_WAIT_TIME_SECONDS'),
       visibilityTimeout: number('SQS_VISIBILITY_TIMEOUT'),
     },
+    s3: {
+      trainingBucket: 'S3_TRAINING_BUCKET',
+    },
+    sagemaker: {
+      endpointName: 'SAGEMAKER_ENDPOINT_NAME',
+    },
+  },
+  training: {
+    uploadEnabled: boolean('TRAINING_UPLOAD_ENABLED'),
   },
   sentiment: {
     model: 'SENTIMENT_MODEL',
+    enabled: boolean('SENTIMENT_ENABLED'),
+  },
+  core: {
+    gateway: {
+      services: {
+        market: {
+          transport: number('MARKET_SERVICE_TRANSPORT'),
+          options: {
+            host: 'MARKET_SERVICE_HOST',
+            port: number('MARKET_SERVICE_PORT'),
+          },
+        },
+      },
+    },
   },
 };

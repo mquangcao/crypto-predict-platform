@@ -22,6 +22,9 @@ module.exports = {
         apiKey: 'CRYPTOCOMPARE_API_KEY',
       },
     },
+    ai: {
+      openaiApiKey: 'OPENAI_API_KEY',
+    },
   },
   aws: {
     region: 'AWS_REGION',

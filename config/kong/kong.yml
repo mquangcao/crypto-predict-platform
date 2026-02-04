@@ -42,7 +42,7 @@ services:
         strip_path: false
 
   - name: market-service
-    url: http://host.docker.internal:3001
+    url: http://host.docker.internal:4005
     routes:
       - name: market-route
         paths:
@@ -50,7 +50,7 @@ services:
         strip_path: false
 
   - name: news-service
-    url: http://host.docker.internal:3002
+    url: http://host.docker.internal:4003
     routes:
       - name: news-route
         paths:
@@ -58,11 +58,12 @@ services:
         strip_path: false
 
   - name: news-ai-service
-    url: http://host.docker.internal:3003
+    url: http://host.docker.internal:4004
     routes:
       - name: news-ai-route
         paths:
-          - /api/news-ai
+          - /api/prediction
+          - /api/training
         strip_path: false
 
   - name: plan-service

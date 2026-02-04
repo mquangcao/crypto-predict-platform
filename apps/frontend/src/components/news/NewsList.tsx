@@ -12,10 +12,9 @@ interface NewsItem {
 }
 
 interface NewsResponse {
+  statusCode: number;
+  message: string;
   data: NewsItem[];
-  total: number;
-  page: number;
-  totalPages: number;
 }
 
 const sentimentColor: Record<string, string> = {
@@ -27,23 +26,17 @@ const sentimentColor: Record<string, string> = {
 export function NewsList() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchNews = async (pageNum: number) => {
+  const fetchNews = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        `http://localhost:3002/news?page=${pageNum}&limit=10`,
-      );
-      const data: NewsResponse = await response.json();
+      const response = await fetch(`/api/news?limit=10`);
+      const result: NewsResponse = await response.json();
 
-      if (data.data && Array.isArray(data.data)) {
-        setNews(data.data);
-        setTotalPages(data.totalPages);
-        setPage(data.page);
+      if (result.data && Array.isArray(result.data)) {
+        setNews(result.data);
       } else {
-        console.error("API response is not in expected format:", data);
+        console.error("API response is not in expected format:", result);
         setNews([]);
       }
     } catch (error) {
@@ -55,23 +48,11 @@ export function NewsList() {
   };
 
   useEffect(() => {
-    fetchNews(1);
+    fetchNews();
     // Refresh mỗi 5 phút
-    const interval = setInterval(() => fetchNews(page), 5 * 60 * 1000);
+    const interval = setInterval(() => fetchNews(), 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
-
-  const handleNextPage = () => {
-    if (page < totalPages) {
-      fetchNews(page + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (page > 1) {
-      fetchNews(page - 1);
-    }
-  };
 
   if (loading) {
     return (

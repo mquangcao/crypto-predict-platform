@@ -14,7 +14,7 @@ let socket: Socket | null = null;
 /** singleton socket, tránh mỗi component 1 connection */
 function getSocket(): Socket {
   if (!socket) {
-    socket = io("http://localhost:4002/price", {
+    socket = io("http://localhost:4005/price", {
       transports: ["websocket"],
     });
   }

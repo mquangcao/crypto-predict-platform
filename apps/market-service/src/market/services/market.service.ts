@@ -1,0 +1,129 @@
+import { Injectable, Logger } from '@nestjs/common';
+import axios from 'axios';
+import {
+  Timeframe,
+  Candle,
+  SymbolInfo,
+  CurrentPrice,
+} from '../interfaces/market-service.interface';
+
+@Injectable()
+export class MarketService {
+  private readonly logger = new Logger(MarketService.name);
+  private readonly BINANCE_BASE_URL = 'https://api.binance.com';
+
+  // danh sách symbol bạn support trong hệ thống (sau này có thể load từ DB)
+  private readonly supportedSymbols: SymbolInfo[] = [
+    {
+      symbol: 'BTCUSDT',
+      description: 'Bitcoin / Tether',
+      baseAsset: 'BTC',
+      quoteAsset: 'USDT',
+    },
+    {
+      symbol: 'ETHUSDT',
+      description: 'Ethereum / Tether',
+      baseAsset: 'ETH',
+      quoteAsset: 'USDT',
+    },
+    {
+      symbol: 'BNBUSDT',
+      description: 'BNB / Tether',
+      baseAsset: 'BNB',
+      quoteAsset: 'USDT',
+    },
+  ];
+
+  getSymbols(): SymbolInfo[] {
+    return this.supportedSymbols;
+  }
+
+  async getCandles(
+    symbol: string,
+    timeframe: Timeframe,
+    limit = 200,
+  ): Promise<Candle[]> {
+    // Map timeframe -> interval Binance (trùng luôn: 1m, 5m, 1h, 1d)
+    const interval = timeframe;
+
+    const url = `${this.BINANCE_BASE_URL}/api/v3/klines`;
+
+    // Retry configuration
+    const maxRetries = 3;
+    let lastError: any;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const res = await axios.get(url, {
+          params: {
+            symbol,
+            interval,
+            limit,
+          },
+          timeout: 15000, // Increased from 5s to 15s
+        });
+
+        const data = res.data as any[];
+
+      // Binance kline format:
+      // [ openTime, open, high, low, close, volume, closeTime, ... ]
+      const candles: Candle[] = data.map((k) => ({
+        time: Math.floor(k[0] / 1000),
+        open: parseFloat(k[1]),
+        high: parseFloat(k[2]),
+        low: parseFloat(k[3]),
+        close: parseFloat(k[4]),
+        volume: parseFloat(k[5]),
+      }));
+
+        return candles;
+      } catch (error: any) {
+        lastError = error;
+        
+        if (attempt < maxRetries) {
+          // Exponential backoff: 1s, 2s, 4s
+          const delay = Math.pow(2, attempt - 1) * 1000;
+          this.logger.warn(
+            `Attempt ${attempt}/${maxRetries} failed for ${symbol} ${timeframe}. ` +
+            `Retrying in ${delay}ms... Error: ${error?.message}`,
+          );
+          await this.sleep(delay);
+        } else {
+          this.logger.error(
+            `All ${maxRetries} attempts failed for ${symbol} ${timeframe}`,
+            error?.message,
+          );
+        }
+      }
+    }
+    
+    // If all retries failed, throw the last error
+    throw lastError;
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  async getCurrentPrice(symbol: string): Promise<CurrentPrice> {
+    const url = `${this.BINANCE_BASE_URL}/api/v3/ticker/price`;
+
+    try {
+      const res = await axios.get(url, {
+        params: { symbol },
+        timeout: 5000,
+      });
+
+      return {
+        symbol: res.data.symbol,
+        price: parseFloat(res.data.price),
+      };
+    } catch (error: any) {
+      this.logger.error(
+        `Error fetching current price from Binance for ${symbol}`,
+        error?.message,
+      );
+      throw error;
+    }
+  }
+}

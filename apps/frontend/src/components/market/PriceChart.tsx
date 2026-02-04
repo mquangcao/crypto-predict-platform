@@ -111,7 +111,7 @@ export function PriceChart({ symbol, timeframe }: Props) {
       setLoading(true);
       setError(null);
       try {
-        const url = `http://localhost:4002/market/candles?symbol=${symbol}&tf=${timeframe}&limit=200`;
+        const url = `/api/market/candles?symbol=${symbol}&tf=${timeframe}&limit=200`;
         console.log("[PriceChart] Fetch:", url);
         const res = await fetch(url);
         if (!res.ok) {
@@ -120,7 +120,7 @@ export function PriceChart({ symbol, timeframe }: Props) {
           throw new Error(`HTTP ${res.status}`);
         }
         const json = await res.json();
-        const fetched: Candle[] = json.candles || [];
+        const fetched: Candle[] = json.data?.candles || [];
 
         setCandles(fetched);
 

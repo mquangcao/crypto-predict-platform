@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { CreateNewsDto } from '../dto/create-news.dto';
 import { NewsCrawler } from '../interfaces/news-crawler.interface';
+import { mapCategoriesToSymbols } from '../utils/symbol-mapper';
 
 @Injectable()
 export class CryptoCompareService implements NewsCrawler {
@@ -25,18 +26,23 @@ export class CryptoCompareService implements NewsCrawler {
 
       const rawArticles = data.Data;
 
-      return rawArticles.map((item: any) => ({
-        source: this.sourceName,
-        externalId: String(item.id),
-        title: item.title,
-        content: item.body,
-        url: item.url,
-        publishedAt: new Date(item.published_on * 1000), 
-        // Fix: Check tồn tại trước khi split
-        symbols: item.categories ? item.categories.split('|') : [],
-        author: item.source,
-        raw: item,
-      }));
+      return rawArticles.map((item: any) => {
+        // Parse categories and convert to valid trading symbols
+        const categories = item.categories ? item.categories.split('|') : [];
+        const tradingSymbols = mapCategoriesToSymbols(categories);
+        
+        return {
+          source: this.sourceName,
+          externalId: String(item.id),
+          title: item.title,
+          content: item.body,
+          url: item.url,
+          publishedAt: new Date(item.published_on * 1000), 
+          symbols: tradingSymbols, // Now contains valid Binance symbols
+          author: item.source,
+          raw: item,
+        };
+      });
 
     } catch (error) {
       this.logger.error(`❌ Error fetching from CryptoCompare: ${error.message}`);

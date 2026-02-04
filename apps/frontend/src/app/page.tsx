@@ -48,10 +48,11 @@ export default function HomePage() {
               </div>
             </div>
 
-            <AiInsightPanel />
-          </section>
-        </div>
-      </main>
-    </div>
+              <AiInsightPanel symbol={symbol} timeframe={timeframe} />
+            </section>
+          </div>
+        </main>
+      </div>
+    </AuthGuard>
   );
 }

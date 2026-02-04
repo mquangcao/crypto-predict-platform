@@ -50,6 +50,17 @@ services:
       - POSTGRESQL_USERNAME=postgres
       - POSTGRESQL_PASSWORD=postgres
       - POSTGRESQL_DATABASE=subscription_db
+      
+  market-db: ## TimescaleDB for market-service (time-series candle data)
+    image: timescale/timescaledb:latest-pg16
+    networks:
+      - nest
+    volumes:
+      - market_db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=market_db
     ports:
       - "5436:5432"
 
@@ -77,6 +88,7 @@ services:
       - user-db
       - news-db
       - subscription-db
+      - market-db
 
 networks:
   nest:
@@ -85,5 +97,6 @@ networks:
 volumes:
   auth_db_data:
   user_db_data:
+  market_db_data:
   news_db_data:
   subscription_db_data:

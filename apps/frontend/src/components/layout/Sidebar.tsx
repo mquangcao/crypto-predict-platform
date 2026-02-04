@@ -8,7 +8,7 @@ const menus = [
   { id: "dashboard", label: "Dashboard", path: "/" },
   { id: "market", label: "Thị trường", path: "/" },
   { id: "news", label: "Tin tức", path: "/news" },
-  { id: "ai", label: "AI Insight", path: "/" },
+  { id: "ai", label: "AI Insights", path: "/ai" },
 ];
 
 export function Sidebar() {

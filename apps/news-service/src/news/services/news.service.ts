@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -13,6 +13,7 @@ import { SentimentQueueService } from './sentiment-queue.service';
 @Injectable()
 export class NewsService {
   private readonly logger = new Logger(NewsService.name);
+  private readonly crawlers: NewsCrawler[];
 
   constructor(
     @InjectRepository(NewsArticle)
@@ -20,15 +21,28 @@ export class NewsService {
     private readonly cryptoCompareService: CryptoCompareService,
     private readonly impactSchedulerService: ImpactSchedulerService,
     private readonly sentimentQueueService: SentimentQueueService,
-  ) {}
+    @Inject('NEWS_CRAWLERS') crawlers: NewsCrawler[],
+  ) {
+    // Combine API-based crawler with web crawlers
+    this.crawlers = [cryptoCompareService, ...crawlers];
+  }
 
   // --- WORKFLOW STEP 1: CRAWL & SAVE ---
 
   @Cron(CronExpression.EVERY_5_MINUTES)
   async handleCron() {
-    this.logger.log('⏰ Cron Job Started: Syncing News...');
-    await this.syncFromSource(this.cryptoCompareService);
-    this.logger.log('✅ Cron Job Finished.');
+    this.logger.log('⏰ Cron Job Started: Syncing News from Multiple Sources...');
+    
+    // Crawl từ tất cả sources song song
+    const promises = this.crawlers.map(crawler => 
+      this.syncFromSource(crawler).catch(error => {
+        this.logger.error(`Error syncing from ${crawler.sourceName}: ${error.message}`);
+      })
+    );
+    
+    await Promise.allSettled(promises);
+    
+    this.logger.log('✅ Cron Job Finished - All Sources Synced.');
   }
 
   async syncFromSource(crawler: NewsCrawler) {
@@ -55,7 +69,11 @@ export class NewsService {
 
         // 🔥 TẠO LỊCH HẸN CHO EVENTBRIDGE
         try {
-          await this.impactSchedulerService.scheduleAllTimeframes(savedArticle.id);
+          await this.impactSchedulerService.scheduleAllTimeframes(
+            savedArticle.id,
+            savedArticle.symbols || [],
+            savedArticle.publishedAt,
+          );
           this.logger.log(`📅 Scheduled impact analysis for article ${savedArticle.id}`);
         } catch (error) {
           this.logger.error(`Failed to schedule impact for article ${savedArticle.id}`, error);
