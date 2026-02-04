@@ -14,6 +14,13 @@ export const NEWS_OPERATION = {
   TRIGGER_CRAWL: "trigger-crawl",
 };
 
+export const PLAN_OPERATION = {
+  GET_PLAN_FOR_PAYMENT: "get-plan-for-payment",
+};
+
+export const SUBSCRIPTION_OPERATION = {
+  ACTIVATE_SUBSCRIPTION: "activate-subscription",
+  CHECK_VIP: "check-vip",
 export const MARKET_OPERATION = {
   GET_SYMBOLS: "market.getSymbols",
   GET_CANDLES: "market.getCandles",

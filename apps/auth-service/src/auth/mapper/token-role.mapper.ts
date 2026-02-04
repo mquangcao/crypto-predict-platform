@@ -9,12 +9,8 @@ export class UserRoleToTokenRoleMapper extends Mapper<UserRole, TokenRole> {
         return TokenRole.ADMIN;
       case UserRole.BASIC:
         return TokenRole.BASIC;
-      case UserRole.ANONYMOUS:
-        return TokenRole.GUEST;
-      case UserRole.SYSTEM:
-        return TokenRole.ADMIN;
       default:
-        return TokenRole.GUEST;
+        return TokenRole.BASIC;
     }
   }
 }

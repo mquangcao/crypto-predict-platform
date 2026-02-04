@@ -3,6 +3,8 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ReactNode } from "react";
 import { Providers } from "@/providers";
+import { Topbar } from "@/components/layout/main/topbar";
+import { Footer } from "@/components/layout/main/footer";
 
 // Configure Poppins globally
 const poppins = Poppins({
@@ -27,9 +29,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={poppins.variable} suppressHydrationWarning>
-      <body className="min-h-screen bg-slate-950 text-slate-50 font-sans antialiased">
-        <Providers>{children}</Providers>
+    <html
+      lang="en"
+      className={poppins.variable}
+      style={{ colorScheme: "light" }}
+    >
+      <body className="min-h-screen bg-background text-foreground font-sans antialiased">
+        <Providers>
+          <div className="flex flex-col min-h-screen">
+            <Topbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </Providers>
       </body>
     </html>
   );

@@ -1,9 +1,10 @@
 import { Repository } from 'typeorm';
 
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { UserEntity } from '../entities/user.entity';
+import { PasswordHash } from '@app/common';
 
 @Injectable()
 export class UserService {
@@ -29,5 +30,32 @@ export class UserService {
 
   async findById(id: string): Promise<UserEntity | null> {
     return this.userRepo.findOne({ where: { id } });
+  }
+
+  async update(id: string, data: Partial<UserEntity>): Promise<UserEntity> {
+    const entity = await this.userRepo.findOne({ where: { id } as any });
+    if (!entity) {
+      throw new NotFoundException(`User not found`);
+    }
+    return this.userRepo.save(Object.assign(entity, data));
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<UserEntity> {
+    const before = await this.userRepo.findOne({ where: { id: userId } });
+
+    if (
+      !before ||
+      !before.password ||
+      !PasswordHash.comparePassword(currentPassword, before.password)
+    ) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    const hashed = PasswordHash.hashPassword(newPassword);
+    return this.update(userId, { password: hashed } as any);
   }
 }

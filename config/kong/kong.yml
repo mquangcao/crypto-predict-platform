@@ -11,6 +11,7 @@ plugins:
         - PUT
         - DELETE
         - OPTIONS
+        - PATCH
       headers:
         - Accept
         - Accept-Version
@@ -37,6 +38,7 @@ services:
       - name: user-route
         paths:
           - /api/user
+          - /api/account
         strip_path: false
 
   - name: market-service
@@ -62,4 +64,28 @@ services:
         paths:
           - /api/prediction
           - /api/training
+        strip_path: false
+
+  - name: plan-service
+    url: http://host.docker.internal:4006
+    routes:
+      - name: plan-route
+        paths:
+          - /api/plans
+        strip_path: false
+
+  - name: payment-service
+    url: http://host.docker.internal:4005
+    routes:
+      - name: payment-route
+        paths:
+          - /api/payments
+        strip_path: false
+
+  - name: subscription-service
+    url: http://host.docker.internal:4007
+    routes:
+      - name: subscription-route
+        paths:
+          - /api/subscriptions
         strip_path: false

@@ -11,7 +11,7 @@ import { useForm } from "./form-provider";
 
 export interface TextInputProps extends Omit<
   React.ComponentProps<"input">,
-  "checked" | "value" | "error" | "onFocus" | "onBlur"
+  "checked" | "error" | "onFocus" | "onBlur"
 > {
   name: string;
   label?: React.ReactNode;
@@ -22,8 +22,18 @@ export interface TextInputProps extends Omit<
 
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
   (
-    { name, label, description, error, required, className, id, ...props },
-    ref
+    {
+      name,
+      label,
+      description,
+      error,
+      required,
+      className,
+      id,
+      value,
+      ...props
+    },
+    ref,
   ) => {
     const form = useForm();
     const inputProps = form.getInputProps(name);
@@ -32,6 +42,8 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       | undefined;
     const displayError = error || fieldError;
     const inputId = id || `text-input-${name}`;
+
+    const finalValue = value !== undefined ? value : inputProps.value;
 
     if (!label && !description && !displayError) {
       return (
@@ -43,6 +55,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
           required={required}
           {...props}
           {...inputProps}
+          value={finalValue}
         />
       );
     }
@@ -66,13 +79,14 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             required={required}
             {...props}
             {...inputProps}
+            value={finalValue}
           />
         </FormControl>
         {description && <FormDescription>{description}</FormDescription>}
         {displayError && <FormMessage>{displayError}</FormMessage>}
       </FormItem>
     );
-  }
+  },
 );
 
 TextInput.displayName = "TextInput";

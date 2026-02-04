@@ -1,5 +1,5 @@
+"use client";
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import { useState } from "react";
 import {
   QueryClient,
   UndefinedInitialDataOptions,
@@ -26,20 +26,20 @@ interface EnhancedMutationParams<
     data: TData,
     variables: TVariables,
     context: TContext,
-    queryClient: QueryClient
+    queryClient: QueryClient,
   ) => unknown;
   onError?: (
     error: TError,
     variables: TVariables,
     context: TContext | undefined,
-    queryClient: QueryClient
+    queryClient: QueryClient,
   ) => unknown;
   onSettled?: (
     data: TData | undefined,
     error: TError | null,
     variables: TVariables,
     context: TContext | undefined,
-    queryClient: QueryClient
+    queryClient: QueryClient,
   ) => unknown;
 }
 
@@ -57,11 +57,11 @@ interface EnhancedMutationParams<
 function createUrl(
   base: string,
   queryParams?: Record<string, string | number | undefined>,
-  routeParams?: Record<string, string | number | undefined>
+  routeParams?: Record<string, string | number | undefined>,
 ) {
   const url = Object.entries(routeParams ?? {}).reduce(
     (acc, [key, value]) => acc.replaceAll(`:${key}`, String(value)),
-    base
+    base,
   );
 
   if (!queryParams) {
@@ -87,7 +87,7 @@ type QueryKey =
 function getQueryKey(
   queryKey: QueryKey,
   route: Record<string, string | number | undefined> = {},
-  query: Record<string, string | number | undefined> = {}
+  query: Record<string, string | number | undefined> = {},
 ) {
   const [mainKey, otherKeys = {}] = queryKey;
 
@@ -168,7 +168,7 @@ export function createGetQueryHook<
       queryKey: getQueryKey(
         rQueryParams.queryKey,
         params?.route,
-        params?.query
+        params?.query,
       ),
       queryFn: () => queryFn(params),
     }) as UseQueryResult<z.infer<ResponseSchema>>;
@@ -253,7 +253,7 @@ export function createPostMutationHook<
           data,
           vars.variables,
           context,
-          queryClient
+          queryClient,
         ),
       onError: (error: any, vars: any, context: any) =>
         rMutationParams?.onError?.(error, vars.variables, context, queryClient),
@@ -263,7 +263,7 @@ export function createPostMutationHook<
           error,
           vars.variables,
           context,
-          queryClient
+          queryClient,
         ),
     } as any);
   };
@@ -348,7 +348,7 @@ export function createPutMutationHook<
           data,
           vars.variables,
           context,
-          queryClient
+          queryClient,
         ),
       onError: (error: any, vars: any, context: any) =>
         rMutationParams?.onError?.(error, vars.variables, context, queryClient),
@@ -358,7 +358,102 @@ export function createPutMutationHook<
           error,
           vars.variables,
           context,
-          queryClient
+          queryClient,
+        ),
+    } as any);
+  };
+}
+
+/* ---------------------------------- PATCH --------------------------------- */
+
+interface CreatePatchMutationHookArgs<
+  BodySchema extends z.ZodType,
+  ResponseSchema extends z.ZodType,
+> {
+  /** The endpoint for the PATCH request */
+  endpoint: string;
+  /** The Zod schema for the request body */
+  bodySchema: BodySchema;
+  /** The Zod schema for the response data */
+  responseSchema: ResponseSchema;
+  /** The mutation parameters for the react-query hook */
+  rMutationParams?: EnhancedMutationParams<
+    z.infer<ResponseSchema>,
+    Error,
+    z.infer<BodySchema>
+  >;
+  options?: { isMultipart?: boolean };
+}
+
+/**
+ * Create a custom hook for performing PATCH requests with react-query and Zod validation
+ *
+ * @example
+ * const usePartialUpdateUser = createPatchMutationHook({
+ *  endpoint: '/api/users/:id',
+ *  bodySchema: updateUserSchema,
+ *  responseSchema: userSchema,
+ *  rMutationParams: { onSuccess: () => queryClient.invalidateQueries('getUsers') },
+ * });
+ */
+export function createPatchMutationHook<
+  BodySchema extends z.ZodType,
+  ResponseSchema extends z.ZodType,
+  RouteParams extends Record<string, string | number | undefined> = {},
+  QueryParams extends Record<string, string | number | undefined> = {},
+>({
+  endpoint,
+  bodySchema,
+  responseSchema,
+  rMutationParams,
+  options,
+}: CreatePatchMutationHookArgs<BodySchema, ResponseSchema>) {
+  return (params?: { query?: QueryParams; route?: RouteParams }) => {
+    const queryClient = useQueryClient();
+    const baseUrl = createUrl(endpoint, params?.query, params?.route);
+
+    type MutationVariables = {
+      variables: z.infer<BodySchema>;
+      query?: QueryParams;
+      route?: RouteParams;
+    };
+
+    const mutationFn = async ({
+      variables,
+      route,
+      query,
+    }: MutationVariables) => {
+      const url = createUrl(baseUrl, query, route);
+
+      const config = options?.isMultipart
+        ? { headers: { "Content-Type": "multipart/form-data" } }
+        : undefined;
+
+      return client
+        .patch(url, bodySchema.parse(variables), config)
+        .then((response) => responseSchema.parse(response.data))
+        .catch(handleRequestError);
+    };
+
+    return useMutation({
+      ...rMutationParams,
+      mutationFn,
+      onSuccess: (data: any, vars: any, context: any) =>
+        rMutationParams?.onSuccess?.(
+          data,
+          vars.variables,
+          context,
+          queryClient,
+        ),
+      onError: (error: any, vars: any, context: any) =>
+        rMutationParams?.onError?.(error, vars.variables, context, queryClient),
+      onSettled: (data: any, error: any, vars: any, context: any) =>
+        rMutationParams?.onSettled?.(
+          data,
+          error,
+          vars.variables,
+          context,
+          queryClient,
         ),
     } as any);
   };
@@ -430,7 +525,7 @@ export function createDeleteMutationHook<
           error,
           vars.model,
           context,
-          queryClient
+          queryClient,
         ),
     } as any);
   };

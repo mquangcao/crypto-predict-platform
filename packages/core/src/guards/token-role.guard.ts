@@ -1,6 +1,12 @@
 import { Observable } from "rxjs";
 
-import { IS_PUBLIC_KEY, TOKEN_ROLE_KEY, TokenRole } from "@app/common";
+import {
+  IS_PUBLIC_KEY,
+  TOKEN_ROLE_KEY,
+  TokenRole,
+  SERVICE,
+  SUBSCRIPTION_OPERATION,
+} from "@app/common";
 import {
   CanActivate,
   ExecutionContext,
@@ -8,14 +14,16 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import { GatewayService } from "../gateway";
 
 @Injectable()
 export class TokenRoleGuard implements CanActivate {
-  constructor(private readonly reflector: Reflector) {}
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly gatewayService: GatewayService,
+  ) {}
 
-  canActivate(
-    context: ExecutionContext
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -27,7 +35,7 @@ export class TokenRoleGuard implements CanActivate {
 
     const requiredRoles = this.reflector.getAllAndOverride<TokenRole[]>(
       TOKEN_ROLE_KEY,
-      [context.getHandler(), context.getClass()]
+      [context.getHandler(), context.getClass()],
     );
 
     if (!requiredRoles) {
@@ -37,7 +45,32 @@ export class TokenRoleGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.userSession;
 
-    if (!user || !user.tokenRole || !requiredRoles.includes(user.tokenRole)) {
+    if (!user) {
+      throw new UnauthorizedException("User session not found");
+    }
+
+    // Check if VIP is required and handle it
+    if (requiredRoles.includes(TokenRole.VIP)) {
+      if (user.tokenRole === TokenRole.ADMIN) {
+        return true;
+      }
+
+      try {
+        const isVip = await this.gatewayService.runOperation<boolean>({
+          serviceId: SERVICE.SUBSCRIPTION,
+          operationId: SUBSCRIPTION_OPERATION.CHECK_VIP,
+          payload: { userId: user.sub },
+        });
+
+        if (isVip) {
+          return true;
+        }
+      } catch (error) {
+        // If error calling subscription service, log and proceed to normal check
+      }
+    }
+
+    if (!user.tokenRole || !requiredRoles.includes(user.tokenRole)) {
       throw new UnauthorizedException("Permission denied");
     }
 

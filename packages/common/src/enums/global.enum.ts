@@ -1,14 +1,12 @@
 export enum TokenRole {
   ADMIN = "ADMIN",
   BASIC = "BASIC",
-  GUEST = "GUEST",
+  VIP = "VIP",
 }
 
 export enum UserRole {
   ADMIN = "ADMIN",
   BASIC = "BASIC",
-  ANONYMOUS = "ANONYMOUS",
-  SYSTEM = "SYSTEM",
 }
 
 export enum UserStatus {
