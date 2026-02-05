@@ -208,7 +208,7 @@ export function PriceChart({ symbol, timeframe }: Props) {
 
       return updatedCandles;
     });
-  }, [realtimePrice, timeframe, candles.length]);
+  }, [realtimePrice, timeframe]);
 
   const last = candles.length ? candles[candles.length - 1] : null;
 

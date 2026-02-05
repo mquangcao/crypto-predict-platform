@@ -41,18 +41,16 @@ export default function HomePage() {
             <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-3 md:p-4 max-h-[260px] flex flex-col">
               <h2 className="text-sm font-semibold mb-2 flex items-center justify-between text-slate-800">
                 <span>Tin tức mới nhất</span>
-                <span className="text-xs text-slate-500">Mock data</span>
               </h2>
               <div className="flex-1 overflow-y-auto pr-1">
                 <NewsList />
               </div>
             </div>
 
-              <AiInsightPanel symbol={symbol} timeframe={timeframe} />
-            </section>
-          </div>
-        </main>
-      </div>
-    </AuthGuard>
+            <AiInsightPanel symbol={symbol} timeframe={timeframe} />
+          </section>
+        </div>
+      </main>
+    </div>
   );
 }

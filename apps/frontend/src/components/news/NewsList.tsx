@@ -93,27 +93,6 @@ export function NewsList() {
           </li>
         ))}
       </ul>
-
-      {/* Pagination controls */}
-      <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-        <button
-          onClick={handlePrevPage}
-          disabled={page === 1}
-          className="px-3 py-1.5 text-xs rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold"
-        >
-          Trước
-        </button>
-        <span className="text-xs text-slate-500 font-medium">
-          Trang {page} / {totalPages}
-        </span>
-        <button
-          onClick={handleNextPage}
-          disabled={page === totalPages}
-          className="px-3 py-1.5 text-xs rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold"
-        >
-          Sau
-        </button>
-      </div>
     </div>
   );
 }

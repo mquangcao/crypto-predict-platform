@@ -33,6 +33,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="en"
       className={poppins.variable}
       style={{ colorScheme: "light" }}
+      suppressHydrationWarning
     >
       <body className="min-h-screen bg-background text-foreground font-sans antialiased">
         <Providers>

@@ -50,7 +50,9 @@ services:
       - POSTGRESQL_USERNAME=postgres
       - POSTGRESQL_PASSWORD=postgres
       - POSTGRESQL_DATABASE=subscription_db
-      
+    ports:
+      - "5437:5432"
+
   market-db: ## TimescaleDB for market-service (time-series candle data)
     image: timescale/timescaledb:latest-pg16
     networks:

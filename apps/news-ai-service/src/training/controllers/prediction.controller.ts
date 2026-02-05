@@ -1,11 +1,15 @@
-import { Controller, Post, Get, Body, Query, Logger, HttpStatus, HttpException, Param } from '@nestjs/common';
+import { Controller, Post, Get, Body, Query, Logger, HttpStatus, HttpException, Param, UseGuards } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard, TokenRoleGuard } from '@app/core';
+import { TokenRole, TokenRoles } from '@app/common';
 import { SageMakerInferenceService } from '../services/sagemaker-inference.service';
 import type { PredictionFeatures } from '../interfaces/prediction.interface';
 import { NewsSentiment } from '../../sentiment/entities/news-sentiment.entity';
 import { NewsPriceImpact } from '../../impact/entities/news-price-impact.entity';
 
+@ApiTags('Predictions')
 @Controller('prediction')
 export class PredictionController {
   private readonly logger = new Logger(PredictionController.name);
@@ -163,11 +167,16 @@ export class PredictionController {
   /**
    * Get prediction for a news item by ID
    * This fetches the news sentiment and impact data, then gets prediction
+   * Requires VIP subscription
    * 
    * @example
    * GET /prediction/news/123
    */
   @Get('news/:newsId')
+  @UseGuards(JwtAuthGuard, TokenRoleGuard)
+  @TokenRoles(TokenRole.VIP)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get AI prediction for specific news (VIP only)' })
   async getPredictionForNews(
     @Param('newsId') newsId: string,
     @Query('symbol') symbol: string = 'BTCUSDT',

@@ -8,12 +8,12 @@ const BASE_ENDPOINT = "/subscriptions";
 
 export const useGetMySubscription = createGetQueryHook({
   endpoint: `${BASE_ENDPOINT}/me`,
-  responseSchema: BaseResponseSchema(SubscriptionDtoSchema),
+  responseSchema: BaseResponseSchema(SubscriptionDtoSchema.nullable()),
   rQueryParams: { queryKey: [QUERY_KEY, "me"] as any },
 });
 
 export const useCheckVip = createGetQueryHook({
   endpoint: `${BASE_ENDPOINT}/check-vip`,
-  responseSchema: BaseResponseSchema(z.boolean()),
+  responseSchema: BaseResponseSchema(z.boolean().nullable()),
   rQueryParams: { queryKey: [QUERY_KEY, "check-vip"] as any },
 });

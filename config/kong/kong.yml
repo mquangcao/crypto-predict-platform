@@ -75,7 +75,7 @@ services:
         strip_path: false
 
   - name: payment-service
-    url: http://host.docker.internal:4005
+    url: http://host.docker.internal:4009
     routes:
       - name: payment-route
         paths:

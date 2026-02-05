@@ -47,10 +47,12 @@ export function AiInsightPanel({
 
   if (loading) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 md:p-4">
-        <h2 className="text-sm font-semibold mb-2">AI Prediction</h2>
+      <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-3 md:p-4">
+        <h2 className="text-sm font-semibold text-slate-800 mb-2">
+          AI Prediction
+        </h2>
         <div className="flex justify-center items-center py-8">
-          <div className="text-slate-400 text-sm">Đang phân tích...</div>
+          <div className="text-slate-500 text-sm">Analyzing...</div>
         </div>
       </div>
     );
@@ -58,16 +60,18 @@ export function AiInsightPanel({
 
   if (error || !prediction?.success) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 md:p-4">
-        <h2 className="text-sm font-semibold mb-2">AI Prediction</h2>
-        <div className="text-xs text-rose-400">
+      <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-3 md:p-4">
+        <h2 className="text-sm font-semibold text-slate-800 mb-2">
+          AI Prediction
+        </h2>
+        <div className="text-xs text-rose-600">
           {error || prediction?.error || "Failed to get prediction"}
         </div>
         <button
           onClick={fetchPrediction}
-          className="mt-2 text-xs text-blue-400 hover:text-blue-300"
+          className="mt-2 text-xs font-medium text-blue-600 hover:text-blue-500"
         >
-          Thử lại
+          Retry
         </button>
       </div>
     );
@@ -78,28 +82,28 @@ export function AiInsightPanel({
 
   const signalConfig = {
     BUY: {
-      color: "text-emerald-400",
-      bgColor: "bg-emerald-500/10 border-emerald-500/30",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50 border-emerald-200",
       icon: TrendingUp,
-      label: "MUA",
+      label: "BUY",
     },
     SELL: {
-      color: "text-rose-400",
-      bgColor: "bg-rose-500/10 border-rose-500/30",
+      color: "text-rose-600",
+      bgColor: "bg-rose-50 border-rose-200",
       icon: TrendingDown,
-      label: "BÁN",
+      label: "SELL",
     },
     NEUTRAL: {
-      color: "text-slate-300",
-      bgColor: "bg-slate-600/20 border-slate-600/30",
+      color: "text-slate-600",
+      bgColor: "bg-slate-100 border-slate-200",
       icon: Minus,
-      label: "TRUNG LẬP",
+      label: "NEUTRAL",
     },
     HOLD: {
-      color: "text-amber-400",
-      bgColor: "bg-amber-500/10 border-amber-500/30",
+      color: "text-amber-600",
+      bgColor: "bg-amber-50 border-amber-200",
       icon: Minus,
-      label: "GIỮ",
+      label: "HOLD",
     },
   };
 
@@ -107,14 +111,16 @@ export function AiInsightPanel({
   const SignalIcon = config.icon;
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 md:p-4">
+    <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-3 md:p-4">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold">AI Prediction</h2>
+        <h2 className="text-sm font-semibold text-slate-800">AI Prediction</h2>
         <div
           className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border ${config.bgColor}`}
         >
           <SignalIcon className={`w-3.5 h-3.5 ${config.color}`} />
-          <span className={`text-xs font-bold ${config.color}`}>
+          <span
+            className={`text-xs font-semibold tracking-wide ${config.color}`}
+          >
             {config.label}
           </span>
         </div>
@@ -122,28 +128,28 @@ export function AiInsightPanel({
 
       <div className="mb-3">
         <div className="flex items-baseline gap-2">
-          <span className="text-xs text-slate-400">Dự báo biến động:</span>
+          <span className="text-xs text-slate-500">Predicted move:</span>
           <span
-            className={`text-lg font-bold ${pred.predictedReturnPct > 0 ? "text-emerald-400" : pred.predictedReturnPct < 0 ? "text-rose-400" : "text-slate-300"}`}
+            className={`text-lg font-bold ${pred.predictedReturnPct > 0 ? "text-emerald-600" : pred.predictedReturnPct < 0 ? "text-rose-600" : "text-slate-600"}`}
           >
             {pred.predictedReturnPct > 0 ? "+" : ""}
             {pred.predictedReturnPct.toFixed(2)}%
           </span>
         </div>
         <div className="text-[11px] text-slate-500 mt-0.5">
-          cho cặp <span className="font-mono text-slate-400">{symbol}</span>{" "}
-          trong {timeframe}
+          for <span className="font-mono text-slate-700">{symbol}</span> on{" "}
+          {timeframe}
         </div>
       </div>
 
-      <div className="bg-slate-800/50 rounded-lg p-2.5">
-        <div className="text-xs text-slate-300 leading-relaxed">
+      <div className="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+        <div className="text-xs text-slate-700 leading-relaxed">
           {pred.reasoning}
         </div>
       </div>
 
       {prediction.metadata && (
-        <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-800">
+        <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-200">
           <span className="text-[10px] text-slate-500">
             Model: {prediction.metadata.endpointName}
           </span>

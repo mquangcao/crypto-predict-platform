@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sidebar } from "../../components/layout/Sidebar";
-import { Topbar } from "../../components/layout/Topbar";
+import { NewsItemWithPrediction } from "@/components/news/NewsItemWithPrediction";
 
 interface NewsItem {
   id: string;
@@ -59,7 +58,7 @@ export default function NewsPage() {
     // Refresh mỗi 5 phút
     const interval = setInterval(() => fetchNews(), 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [page]);
+  }, []);
 
   const handleLoadMore = () => {
     setDisplayCount((prev) => Math.min(prev + 10, news.length));
@@ -73,14 +72,15 @@ export default function NewsPage() {
             {/* Header */}
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-slate-900 mb-2">
-                Tin tức Crypto
+                Crypto News
               </h1>
               <p className="text-slate-600">
-                Cập nhật tin tức mới nhất từ thị trường tiền điện tử
+                Latest updates from the cryptocurrency market with AI-powered
+                price predictions
               </p>
               {news.length > 0 && (
                 <p className="text-sm text-slate-500 mt-2">
-                  Hiển thị {displayCount} / {news.length} tin tức
+                  Showing {displayCount} / {news.length} articles
                 </p>
               )}
             </div>
@@ -88,7 +88,7 @@ export default function NewsPage() {
             {/* Loading State */}
             {loading && (
               <div className="flex justify-center items-center py-20">
-                <div className="text-slate-500 italic">Đang tải tin tức...</div>
+                <div className="text-slate-500 italic">Loading news...</div>
               </div>
             )}
 
@@ -97,82 +97,33 @@ export default function NewsPage() {
               <>
                 <div className="grid gap-4 mb-8">
                   {news.slice(0, displayCount).map((item) => (
-                    <article
+                    <NewsItemWithPrediction
                       key={item.id}
-                      className="bg-white border border-slate-200 rounded-xl p-6 hover:bg-slate-50 transition-all cursor-pointer hover:border-indigo-300 shadow-sm"
-                      onClick={() =>
-                        item.url && window.open(item.url, "_blank")
-                      }
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm text-slate-500 font-bold uppercase tracking-tight">
-                            {item.source}
-                          </span>
-                          <span className="text-xs text-slate-400 font-medium italic">
-                            {item.time}
-                          </span>
-                        </div>
-                        <span
-                          className={
-                            "px-3 py-1 rounded-full text-xs capitalize font-bold border shadow-xs " +
-                            sentimentColor[item.sentiment]
-                          }
-                        >
-                          {item.sentiment}
-                        </span>
-                      </div>
-
-                      <h2 className="text-lg font-bold text-slate-900 mb-2 leading-relaxed">
-                        {item.title}
-                      </h2>
-
-                      {item.body && (
-                        <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed">
-                          {item.body}
-                        </p>
-                      )}
-
-                      <div className="mt-4 flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-700">
-                        <span>Đọc thêm →</span>
-                      </div>
-                    </article>
+                      newsItem={item}
+                      sentimentColor={sentimentColor}
+                    />
                   ))}
                 </div>
 
-                {/* Pagination */}
-                <div className="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-                  <button
-                    onClick={handlePrevPage}
-                    disabled={page === 1}
-                    className="px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-bold shadow-md shadow-indigo-100"
-                  >
-                    ← Trang trước
-                  </button>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-500 font-medium">Trang</span>
-                    <span className="text-slate-900 font-bold">{page}</span>
-                    <span className="text-slate-500 font-medium">
-                      / {totalPages}
-                    </span>
+                {/* Load More Button */}
+                {displayCount < news.length && (
+                  <div className="flex justify-center">
+                    <button
+                      onClick={handleLoadMore}
+                      className="px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition font-bold shadow-md shadow-indigo-100"
+                    >
+                      Load more ({news.length - displayCount} articles
+                      remaining)
+                    </button>
                   </div>
-
-                  <button
-                    onClick={handleNextPage}
-                    disabled={page === totalPages}
-                    className="px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-bold shadow-md shadow-indigo-100"
-                  >
-                    Trang sau →
-                  </button>
-                </div>
+                )}
               </>
             )}
 
             {/* Empty State */}
             {!loading && news.length === 0 && (
               <div className="text-center py-20">
-                <p className="text-slate-500 text-lg">Chưa có tin tức nào</p>
+                <p className="text-slate-500 text-lg">No news available</p>
               </div>
             )}
           </div>

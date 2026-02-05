@@ -1,5 +1,5 @@
 module.exports = {
-  port: 4005,
+  port: 4009,
   appName: 'payment-service',
   database: {
     type: 'postgres',
