@@ -13,10 +13,6 @@ import { NewsArticle } from './entities/news-article.entity';
 import { HtmlPattern } from './entities/html-pattern.entity';
 import { CryptoCompareService } from './providers/cryptocompare.service';
 import { CoinDeskCrawlerService } from './providers/coindesk-crawler.service';
-import { CoinTelegraphCrawlerService } from './providers/cointelegraph-crawler.service';
-import { DecryptCrawlerService } from './providers/decrypt-crawler.service';
-import { TheBlockCrawlerService } from './providers/theblock-crawler.service';
-import { BitcoinComCrawlerService } from './providers/bitcoin-com-crawler.service';
 import { 
   AwsSchedulerClientProvider,
   AwsSqsClientProvider 
@@ -35,6 +31,7 @@ const CommandHandlers = [
 ];
 
 // Factory để tạo danh sách crawlers
+// CoinDesk: /latest-crypto-news page có tất cả individual articles
 const newsCrawlersProvider = {
   provide: 'NEWS_CRAWLERS',
   useFactory: (
@@ -42,10 +39,6 @@ const newsCrawlersProvider = {
   ) => {
     return [
       new CoinDeskCrawlerService(aiParser),
-      new CoinTelegraphCrawlerService(aiParser),
-      new DecryptCrawlerService(aiParser),
-      new TheBlockCrawlerService(aiParser),
-      new BitcoinComCrawlerService(aiParser),
     ];
   },
   inject: [AiHtmlParserService],

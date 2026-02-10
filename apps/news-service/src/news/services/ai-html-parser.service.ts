@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { HtmlPattern } from '../entities/html-pattern.entity';
+import { RequestQueueService } from './request-queue.service';
 import * as cheerio from 'cheerio';
 
 interface ParsedArticle {
@@ -23,13 +24,16 @@ interface ExtractionPattern {
 @Injectable()
 export class AiHtmlParserService {
   private readonly logger = new Logger(AiHtmlParserService.name);
-  private openaiApiKey: string;
+  private groqApiKey: string;
+  private requestQueue: RequestQueueService;
 
   constructor(
     @InjectRepository(HtmlPattern)
     private readonly patternRepo: Repository<HtmlPattern>,
   ) {
-    this.openaiApiKey = process.env.OPENAI_API_KEY || '';
+    this.groqApiKey = process.env.GROQ_API_KEY || '';
+    // Concurrency = 1 để xử lý tuần tự, tránh rate limit
+    this.requestQueue = new RequestQueueService(1);
   }
 
   /**
@@ -78,83 +82,109 @@ export class AiHtmlParserService {
   }
 
   /**
-   * Sử dụng AI (OpenAI GPT-4) để phân tích HTML và trích xuất dữ liệu
+   * Sử dụng AI (Groq LLaMA) để phân tích HTML và trích xuất dữ liệu
+   * Xếp hàng requests để tránh rate limit
    */
   private async extractWithAI(
     html: string,
     url: string,
   ): Promise<{ data: ParsedArticle; pattern: ExtractionPattern } | null> {
-    if (!this.openaiApiKey) {
-      this.logger.error('OpenAI API key not configured');
+    if (!this.groqApiKey) {
+      this.logger.error('Groq API key not configured');
       return null;
     }
 
     try {
+      // Sử dụng request queue để xử lý tuần tự
+      const result = await this.requestQueue.add(
+        () => this.callGroqApi(html, url),
+        `parse-${url}`,
+      );
+      return result;
+    } catch (error) {
+      this.logger.error(`AI extraction failed: ${error.message}`);
+      return null;
+    }
+  }
+
+  /**
+   * Gọi Groq API để parse HTML
+   * Le được xếp hàng để tránh parallel requests
+   */
+  private async callGroqApi(
+    html: string,
+    url: string,
+    retries = 3,
+  ): Promise<{ data: ParsedArticle; pattern: ExtractionPattern } | null> {
+    try {
       // Giảm kích thước HTML để tiết kiệm tokens
       const $ = cheerio.load(html);
       
-      // Loại bỏ scripts, styles, comments
-      $('script, style, noscript, iframe, svg').remove();
-      const cleanHtml = $.html();
+      // Loại bỏ scripts, styles, comments, navigation, footers
+      $('script, style, noscript, iframe, svg, nav, footer, header').remove();
+      $('[role="navigation"], [role="complementary"], .nav, .navigation, .footer, .sidebar, .ads, [class*="sidebar"], [class*="advertisement"]').remove();
       
-      // Giới hạn độ dài HTML
-      const truncatedHtml = cleanHtml.slice(0, 50000); // ~12k tokens
+      // Cố gắng extract main content area
+      let mainContent = $('article, main, [role="main"], .article, .post, .content, .body').first().html();
+      if (!mainContent || mainContent.length < 100) {
+        mainContent = $.html();
+      }
+      
+      // Giới hạn độ dài HTML - giảm xuống 15000 characters
+      const truncatedHtml = mainContent.slice(0, 15000);
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.openaiApiKey}`,
+          'Authorization': `Bearer ${this.groqApiKey}`,
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini', // Cost-effective model
+          model: 'llama-3.3-70b-versatile',
+          response_format: { type: 'json_object' },
           messages: [
             {
               role: 'system',
-              content: `You are an expert web scraper. Analyze the HTML structure and extract news article information.
-              
-Return a JSON object with two parts:
-1. "data": The extracted article data
-2. "pattern": CSS selectors that can be used to extract similar articles from this website
-
-Example response:
+              content: `You are a JSON extractor. Extract article info from HTML and return ONLY valid JSON.
+REQUIRED JSON STRUCTURE:
 {
   "data": {
-    "title": "Bitcoin Reaches New High",
-    "content": "Full article content here...",
-    "author": "John Doe",
-    "publishedAt": "2026-02-03T10:00:00Z",
-    "symbols": ["BTC", "ETH"]
+    "title": "string",
+    "content": "string", 
+    "author": "string or empty",
+    "publishedAt": "ISO8601 string or empty",
+    "symbols": ["array of crypto symbols found"]
   },
   "pattern": {
-    "titleSelector": "h1.article-title",
-    "contentSelector": "div.article-body",
-    "authorSelector": "span.author-name",
-    "dateSelector": "time.publish-date",
-    "dateFormat": "iso8601"
+    "titleSelector": "CSS selector string",
+    "contentSelector": "CSS selector string",
+    "authorSelector": "CSS selector string or empty",
+    "dateSelector": "CSS selector string or empty"
   }
 }
-
-Rules:
-- Extract cryptocurrency symbols mentioned (BTC, ETH, etc.)
-- publishedAt should be ISO 8601 format
-- Patterns should use specific, reliable CSS selectors
-- Content should be the main article text, cleaned of ads/navigation
-- Return ONLY valid JSON, no markdown formatting`,
+RULES: Return ONLY valid JSON. No explanations. No markdown. Extract all fields.`,
             },
             {
               role: 'user',
-              content: `Extract article data and pattern from this HTML:\n\nURL: ${url}\n\nHTML:\n${truncatedHtml}`,
+              content: `Extract from this HTML:\n\nURL: ${url}\n\nHTML:\n${truncatedHtml}`,
             },
           ],
-          temperature: 0.1,
-          max_tokens: 2000,
+          temperature: 0,
+          max_tokens: 600,
         }),
       });
 
+      // Handle rate limit with retry
+      if (response.status === 429 && retries > 0) {
+        const waitTime = Math.pow(2, 3 - retries) * 1000; // Exponential backoff
+        this.logger.warn(`⏳ Rate limited, retrying in ${waitTime}ms... (${retries} retries left)`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+        return this.callGroqApi(html, url, retries - 1);
+      }
+
       if (!response.ok) {
         const error = await response.text();
-        this.logger.error(`OpenAI API error: ${error}`);
+        this.logger.error(`Groq API error: ${error}`);
         return null;
       }
 
@@ -170,8 +200,8 @@ Rules:
       
       return {
         data: {
-          title: parsed.data.title,
-          content: parsed.data.content,
+          title: parsed.data.title || '',
+          content: parsed.data.content || '',
           author: parsed.data.author,
           publishedAt: parsed.data.publishedAt ? new Date(parsed.data.publishedAt) : undefined,
           symbols: parsed.data.symbols || [],
@@ -179,8 +209,8 @@ Rules:
         pattern: parsed.pattern,
       };
     } catch (error) {
-      this.logger.error(`AI extraction failed: ${error.message}`);
-      return null;
+      this.logger.error(`❌ Groq API call failed: ${error.message}`);
+      throw error;
     }
   }
 

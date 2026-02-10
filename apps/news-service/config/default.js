@@ -51,8 +51,8 @@ module.exports = {
       },
     },
     ai: {
-      openaiApiKey: process.env.OPENAI_API_KEY || '',
-      model: 'gpt-4o-mini', // Cost-effective model for HTML parsing
+      groqApiKey: process.env.GROQ_API_KEY || '',
+      model: 'llama-3.3-70b-versatile', // Fast and free Groq model for HTML parsing
     },
   },
   aws: {

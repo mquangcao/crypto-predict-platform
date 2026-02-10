@@ -23,7 +23,7 @@ module.exports = {
       },
     },
     ai: {
-      openaiApiKey: 'OPENAI_API_KEY',
+      groqApiKey: 'GROQ_API_KEY',
     },
   },
   aws: {

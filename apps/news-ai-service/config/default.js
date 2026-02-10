@@ -39,6 +39,20 @@ module.exports = {
   core: {
     gateway: {
       services: {
+        auth: {
+          transport: 0,
+          options: {
+            host: 'localhost',
+            port: 8001,
+          },
+        },
+        subscription: {
+          transport: 0,
+          options: {
+            host: 'localhost',
+            port: 8007,
+          },
+        },
         market: {
           transport: 0,
           options: {

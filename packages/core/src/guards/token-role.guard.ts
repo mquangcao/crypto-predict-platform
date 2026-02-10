@@ -64,9 +64,13 @@ export class TokenRoleGuard implements CanActivate {
 
         if (isVip) {
           return true;
+        } else {
+          throw new UnauthorizedException("VIP subscription required");
         }
       } catch (error) {
-        // If error calling subscription service, log and proceed to normal check
+        throw new UnauthorizedException(
+          error.message || "VIP subscription required"
+        );
       }
     }
 

@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { predictionApi, PredictionResult } from "@/api/entities";
+import {
+  predictionApi,
+  PredictionResult,
+  sentimentApi,
+  SentimentData,
+} from "@/api/entities";
 import { useCheckVip, useAuth } from "@/hooks";
 import {
   TrendingUp,
@@ -13,6 +18,7 @@ import {
   ChevronUp,
   Crown,
   Lock,
+  Brain,
 } from "lucide-react";
 
 interface NewsItemWithPredictionProps {
@@ -46,11 +52,15 @@ export function NewsItemWithPrediction({
   const isVip = !!vipData?.data || user?.role === "ADMIN";
 
   const [showPrediction, setShowPrediction] = useState(false);
+  const [showSentiment, setShowSentiment] = useState(false);
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSDT");
   const [selectedTimeframe, setSelectedTimeframe] = useState("1h");
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
+  const [sentiment, setSentiment] = useState<SentimentData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [sentimentLoading, setSentimentLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sentimentError, setSentimentError] = useState<string | null>(null);
 
   const fetchPrediction = async () => {
     try {
@@ -67,6 +77,20 @@ export function NewsItemWithPrediction({
       setError(err.message || "Failed to get prediction");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSentiment = async () => {
+    try {
+      setSentimentLoading(true);
+      setSentimentError(null);
+      const result = await sentimentApi.getSentiment(newsItem.id);
+      setSentiment(result);
+    } catch (err: any) {
+      console.error("Error fetching sentiment:", err);
+      setSentimentError(err.message || "Failed to get sentiment");
+    } finally {
+      setSentimentLoading(false);
     }
   };
 
@@ -89,6 +113,25 @@ export function NewsItemWithPrediction({
     }
   };
 
+  const handleToggleSentiment = () => {
+    // If user is not logged in, redirect to login
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    // If user is not VIP, don't allow toggle
+    if (!isVip) {
+      return;
+    }
+
+    const newState = !showSentiment;
+    setShowSentiment(newState);
+    if (newState && !sentiment) {
+      fetchSentiment();
+    }
+  };
+
   const handleSymbolChange = (symbol: string) => {
     setSelectedSymbol(symbol);
     setPrediction(null); // Clear old prediction
@@ -97,6 +140,13 @@ export function NewsItemWithPrediction({
   const handleTimeframeChange = (timeframe: string) => {
     setSelectedTimeframe(timeframe);
     setPrediction(null); // Clear old prediction
+  };
+
+  // Helper function to truncate text
+  const truncateText = (text: string, maxLength: number = 300): string => {
+    if (!text) return "";
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength).trim() + "...";
   };
 
   const signalConfig = {
@@ -138,9 +188,6 @@ export function NewsItemWithPrediction({
             <span className="text-sm text-slate-500 font-bold uppercase tracking-tight">
               {newsItem.source}
             </span>
-            <span className="text-xs text-slate-400 font-medium italic">
-              {newsItem.time}
-            </span>
           </div>
           <span
             className={
@@ -156,10 +203,17 @@ export function NewsItemWithPrediction({
           {newsItem.title}
         </h2>
 
+        <div className="mb-3 flex items-center gap-2 text-xs text-slate-500">
+          <span className="font-semibold">Published:</span>
+          <span className="font-medium italic">{newsItem.time}</span>
+        </div>
+
         {newsItem.body && (
-          <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed">
-            {newsItem.body}
-          </p>
+          <div className="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+            <p className="text-sm text-slate-700 leading-relaxed line-clamp-4">
+              {truncateText(newsItem.body, 300)}
+            </p>
+          </div>
         )}
 
         <div className="mt-4 flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-700">
@@ -214,6 +268,58 @@ export function NewsItemWithPrediction({
               <ChevronUp className="w-4 h-4 text-indigo-600" />
             ) : (
               <ChevronDown className="w-4 h-4 text-indigo-600" />
+            )}
+          </button>
+        )}
+      </div>
+
+      {/* AI Sentiment Analysis Toggle Button */}
+      <div className="px-6 pb-4">
+        {!user ? (
+          // Not logged in - prompt to login
+          <button
+            onClick={() => router.push("/login")}
+            className="w-full flex items-center justify-between px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Lock className="w-4 h-4 text-slate-600" />
+              <span className="text-sm font-semibold text-slate-700">
+                Login to view AI Sentiment Analysis
+              </span>
+            </div>
+          </button>
+        ) : !isVip ? (
+          // Logged in but not VIP - prompt to upgrade
+          <button
+            onClick={() => router.push("/pricing")}
+            className="w-full flex items-center justify-between px-4 py-2.5 bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 border border-purple-300 rounded-lg transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Crown className="w-4 h-4 text-purple-600" />
+              <span className="text-sm font-semibold text-purple-800">
+                Upgrade to VIP for AI Sentiment Analysis
+              </span>
+            </div>
+            <span className="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded">
+              VIP ONLY
+            </span>
+          </button>
+        ) : (
+          // VIP user - show sentiment toggle
+          <button
+            onClick={handleToggleSentiment}
+            className="w-full flex items-center justify-between px-4 py-2.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Brain className="w-4 h-4 text-purple-600" />
+              <span className="text-sm font-semibold text-purple-700">
+                AI Sentiment Analysis
+              </span>
+            </div>
+            {showSentiment ? (
+              <ChevronUp className="w-4 h-4 text-purple-600" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-purple-600" />
             )}
           </button>
         )}
@@ -374,6 +480,145 @@ export function NewsItemWithPrediction({
                 )}
               </div>
             )}
+        </div>
+      )}
+
+      {/* Sentiment Panel */}
+      {showSentiment && (
+        <div className="px-6 pb-6 border-t border-slate-200 pt-4">
+          {/* Fetch Button */}
+          <button
+            onClick={fetchSentiment}
+            disabled={sentimentLoading}
+            className="w-full mb-4 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-300 text-white font-semibold rounded-lg transition-colors shadow-sm"
+          >
+            {sentimentLoading ? "Analyzing..." : "Analyze Sentiment"}
+          </button>
+
+          {/* Loading State */}
+          {sentimentLoading && (
+            <div className="flex justify-center items-center py-8">
+              <div className="flex items-center gap-2 text-purple-600">
+                <Brain className="w-4 h-4 animate-pulse" />
+                <span className="text-sm font-medium">
+                  Analyzing sentiment...
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Error State */}
+          {sentimentError && !sentimentLoading && (
+            <div className="p-4 bg-rose-50 border border-rose-200 rounded-lg">
+              <p className="text-sm text-rose-700">{sentimentError}</p>
+            </div>
+          )}
+
+          {/* Sentiment Result */}
+          {sentiment && !sentimentLoading && (
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+              {/* Sentiment Label Badge */}
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-semibold text-slate-600">
+                  Sentiment
+                </span>
+                <div
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${
+                    sentiment.sentimentLabel === "positive"
+                      ? "bg-emerald-50 border-emerald-200"
+                      : sentiment.sentimentLabel === "negative"
+                        ? "bg-rose-50 border-rose-200"
+                        : "bg-slate-100 border-slate-200"
+                  }`}
+                >
+                  {sentiment.sentimentLabel === "positive" ? (
+                    <TrendingUp className="w-4 h-4 text-emerald-600" />
+                  ) : sentiment.sentimentLabel === "negative" ? (
+                    <TrendingDown className="w-4 h-4 text-rose-600" />
+                  ) : (
+                    <Minus className="w-4 h-4 text-slate-600" />
+                  )}
+                  <span
+                    className={`text-sm font-bold capitalize ${
+                      sentiment.sentimentLabel === "positive"
+                        ? "text-emerald-600"
+                        : sentiment.sentimentLabel === "negative"
+                          ? "text-rose-600"
+                          : "text-slate-600"
+                    }`}
+                  >
+                    {sentiment.sentimentLabel}
+                  </span>
+                </div>
+              </div>
+
+              {/* Sentiment Score */}
+              <div className="mb-3">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xs text-slate-600">Score:</span>
+                  <span
+                    className={`text-xl font-bold ${
+                      sentiment.sentimentScore > 0
+                        ? "text-emerald-600"
+                        : sentiment.sentimentScore < 0
+                          ? "text-rose-600"
+                          : "text-slate-600"
+                    }`}
+                  >
+                    {sentiment.sentimentScore > 0 ? "+" : ""}
+                    {sentiment.sentimentScore.toFixed(2)}
+                  </span>
+                </div>
+                <div className="w-full bg-slate-200 rounded-full h-1.5 mt-2 overflow-hidden">
+                  <div
+                    className={`h-full transition-all ${
+                      sentiment.sentimentScore > 0
+                        ? "bg-emerald-500"
+                        : sentiment.sentimentScore < 0
+                          ? "bg-rose-500"
+                          : "bg-slate-400"
+                    }`}
+                    style={{
+                      width: `${Math.abs(sentiment.sentimentScore) * 100}%`,
+                      marginLeft:
+                        sentiment.sentimentScore < 0
+                          ? `${Math.abs(sentiment.sentimentScore) * 100}%`
+                          : "0",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Confidence */}
+              <div className="mb-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-slate-600 font-medium">
+                    Confidence
+                  </span>
+                  <span className="text-sm font-bold text-slate-700">
+                    {(sentiment.confidence * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                  <div
+                    className="h-full bg-purple-500 transition-all"
+                    style={{ width: `${sentiment.confidence * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Metadata */}
+              <div className="flex items-center justify-between pt-3 border-t border-slate-200">
+                <span className="text-[10px] text-slate-500">
+                  Model: {sentiment.model}
+                </span>
+                <span className="text-[10px] text-slate-500">
+                  Analyzed:{" "}
+                  {new Date(sentiment.analyzedAt).toLocaleTimeString()}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </article>

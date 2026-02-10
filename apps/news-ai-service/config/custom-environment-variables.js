@@ -43,6 +43,20 @@ module.exports = {
   core: {
     gateway: {
       services: {
+        auth: {
+          transport: number('AUTH_SERVICE_TRANSPORT'),
+          options: {
+            host: 'AUTH_SERVICE_HOST',
+            port: number('AUTH_SERVICE_PORT'),
+          },
+        },
+        subscription: {
+          transport: number('SUBSCRIPTION_SERVICE_TRANSPORT'),
+          options: {
+            host: 'SUBSCRIPTION_SERVICE_HOST',
+            port: number('SUBSCRIPTION_SERVICE_PORT'),
+          },
+        },
         market: {
           transport: number('MARKET_SERVICE_TRANSPORT'),
           options: {

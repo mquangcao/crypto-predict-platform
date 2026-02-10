@@ -7,11 +7,22 @@ interface NewsItem {
   id: string;
   source: string;
   title: string;
+  content: string;
+  publishedAt: string;
+  url?: string;
+  sentiment?: string;
+  symbols?: string[];
+  author?: string;
+}
+
+interface MappedNewsItem {
+  id: string;
+  source: string;
+  title: string;
   time: string;
   sentiment: string;
   url?: string;
   body?: string;
-  published_at?: string;
 }
 
 interface NewsResponse {
@@ -29,9 +40,95 @@ const sentimentColor: Record<string, string> = {
 const LIMIT = 50;
 
 export default function NewsPage() {
-  const [news, setNews] = useState<NewsItem[]>([]);
+  const [news, setNews] = useState<MappedNewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [displayCount, setDisplayCount] = useState(10);
+
+  // Helper function to format date
+  const formatDate = (dateString: string): string => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1) return "Just now";
+      if (diffMins < 60) return `${diffMins}m ago`;
+      if (diffHours < 24) return `${diffHours}h ago`;
+      if (diffDays < 7) return `${diffDays}d ago`;
+
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Determine sentiment from title and content
+  const determineSentiment = (title: string, content: string): string => {
+    const text = `${title} ${content}`.toLowerCase();
+
+    const bullishWords = [
+      "surge",
+      "soar",
+      "rally",
+      "pump",
+      "gain",
+      "rise",
+      "spike",
+      "bull",
+      "moon",
+      "bull run",
+      "breakout",
+      "recovery",
+      "strong",
+      "bullish",
+      "positive",
+      "optimism",
+      "up",
+      "higher",
+      "growth",
+      "profit",
+    ];
+
+    const bearishWords = [
+      "crash",
+      "plunge",
+      "dump",
+      "fall",
+      "drop",
+      "decline",
+      "bear",
+      "bearish",
+      "down",
+      "lower",
+      "negative",
+      "pessimism",
+      "loss",
+      "weakness",
+      "weak",
+      "fear",
+      "liquidation",
+      "collapse",
+    ];
+
+    const bullishCount = bullishWords.filter((word) =>
+      text.includes(word),
+    ).length;
+    const bearishCount = bearishWords.filter((word) =>
+      text.includes(word),
+    ).length;
+
+    if (bullishCount > bearishCount) return "bullish";
+    if (bearishCount > bullishCount) return "bearish";
+    return "neutral";
+  };
 
   const fetchNews = async () => {
     try {
@@ -40,7 +137,17 @@ export default function NewsPage() {
       const result: NewsResponse = await response.json();
 
       if (result.data && Array.isArray(result.data)) {
-        setNews(result.data);
+        const mappedNews: MappedNewsItem[] = result.data.map((item) => ({
+          id: item.id,
+          source: item.source,
+          title: item.title,
+          time: formatDate(item.publishedAt),
+          sentiment:
+            item.sentiment || determineSentiment(item.title, item.content),
+          url: item.url,
+          body: item.content,
+        }));
+        setNews(mappedNews);
       } else {
         console.error("API response is not in expected format:", result);
         setNews([]);

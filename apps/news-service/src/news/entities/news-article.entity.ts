@@ -22,7 +22,7 @@ export class NewsArticle extends BaseEntity {
   @Column({ type: 'timestamptz' })
   publishedAt: Date;
 
-  @Column('simple-array', { nullable: true })
+  @Column('text', { array: true, nullable: true })
   symbols: string[]; // BTC, ETH...
 
   @Column({ nullable: true })

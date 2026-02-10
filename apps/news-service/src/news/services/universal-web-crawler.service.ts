@@ -63,16 +63,22 @@ export class UniversalWebCrawlerService implements NewsCrawler {
     try {
       this.logger.log(`📄 Navigating to ${this.source.newsListUrl}`);
       
+      // Sử dụng load thay vì networkidle để tránh timeout
+      // Load = page load xong, không chờ tất cả background requests
       await page.goto(this.source.newsListUrl, {
-        waitUntil: 'domcontentloaded',
-        timeout: 30000,
+        waitUntil: 'load',
+        timeout: 20000,
       });
 
       // Đợi content load
       if (this.source.waitForSelector) {
-        await page.waitForSelector(this.source.waitForSelector, { timeout: 10000 });
+        try {
+          await page.waitForSelector(this.source.waitForSelector, { timeout: 5000 });
+        } catch (e) {
+          this.logger.warn(`Selector timeout for ${this.source.waitForSelector}, continuing anyway`);
+        }
       } else {
-        await page.waitForTimeout(2000); // Fallback wait
+        await page.waitForTimeout(1500); // Short wait for JS to render
       }
 
       // Lấy tất cả links bài viết
@@ -94,12 +100,15 @@ export class UniversalWebCrawlerService implements NewsCrawler {
         this.source.newsListUrl,
       );
 
+      // Filter out category/list pages - keep only individual articles
+      const articleLinks = links.filter(url => this.isArticlePage(url));
+
       // Loại bỏ duplicates và giới hạn số lượng
-      const uniqueLinks = Array.from(new Set(links));
+      const uniqueLinks = Array.from(new Set(articleLinks));
       const maxArticles = this.source.maxArticles || 10;
       const limitedLinks = uniqueLinks.slice(0, maxArticles);
 
-      this.logger.log(`🔗 Found ${limitedLinks.length} article URLs`);
+      this.logger.log(`🔗 Found ${limitedLinks.length} article URLs (filtered from ${links.length})`);
       return limitedLinks;
 
     } catch (error) {
@@ -163,6 +172,51 @@ export class UniversalWebCrawlerService implements NewsCrawler {
       return null;
     } finally {
       await page.close();
+    }
+  }
+
+  /**
+   * Filter category/list pages - keep only individual articles
+   * Article URLs typically have multiple path segments or date patterns
+   * Category URLs are single words like /news/business, /news/defi
+   */
+  private isArticlePage(url: string): boolean {
+    try {
+      const urlObj = new URL(url);
+      const path = urlObj.pathname;
+
+      // Exclude common category/list page patterns
+      const excludePatterns = [
+        '/news$', // Just /news
+        '/categories', 
+        'editors-picks',
+        'trending',
+        'latest',
+        'all',
+        'archive',
+        '/tags/',
+        '/author/',
+      ];
+
+      for (const pattern of excludePatterns) {
+        if (new RegExp(pattern, 'i').test(path)) {
+          return false;
+        }
+      }
+
+      // Extract last segment
+      const segments = path.split('/').filter(s => s.length > 0);
+      if (segments.length < 2) return false; // Must have at least /news/something
+
+      const lastSegment = segments[segments.length - 1];
+
+      // Article pages typically have dashes, dates, or numbers in the title
+      // Examples: "bitcoin-hits-new-high", "2024-02-10-news"
+      const hasArticlePattern = /[-\d]/.test(lastSegment);
+
+      return hasArticlePattern;
+    } catch (error) {
+      return true; // Default to true if error
     }
   }
 

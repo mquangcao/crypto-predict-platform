@@ -64,6 +64,7 @@ services:
         paths:
           - /api/prediction
           - /api/training
+          - /api/sentiment
         strip_path: false
 
   - name: plan-service

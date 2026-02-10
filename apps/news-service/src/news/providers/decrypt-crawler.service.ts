@@ -8,10 +8,10 @@ export class DecryptCrawlerService extends UniversalWebCrawlerService {
     const source: WebSource = {
       name: 'decrypt',
       domain: 'decrypt.co',
-      newsListUrl: 'https://decrypt.co/news',
-      articleLinkSelector: 'article a[href*="/news/"], .article-title a',
-      maxArticles: 10,
-      waitForSelector: 'article',
+      newsListUrl: 'https://decrypt.co',
+      articleLinkSelector: 'a[href^="/news/"]',
+      maxArticles: 15,
+      waitForSelector: 'body',
     };
     
     super(source, aiParser);

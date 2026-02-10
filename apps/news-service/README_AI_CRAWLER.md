@@ -4,26 +4,29 @@
 
 News Service đã được nâng cấp với khả năng crawl tin tức từ nhiều nguồn khác nhau sử dụng **AI-based HTML parser**. Hệ thống tự động học cấu trúc HTML của mỗi trang và adapt khi structure thay đổi.
 
-## 🚀 Tính năng mới
+## 🚀 Kính năng mới
 
-### 1. **AI-Powered HTML Parsing**
+### 1. **AI-Powered HTML Parsing với Groq**
 
-- Sử dụng GPT-4o-mini để tự động phân tích và trích xuất nội dung từ bất kỳ trang web nào
+- Sử dụng Groq LLaMA 3.3-70b (miễn phí, free tier 12K tokens/phút)
+- Tự động phân tích và trích xuất nội dung từ bất kỳ trang web nào
 - Tự động học và lưu parsing patterns để tái sử dụng
 - Xử lý thông minh khi HTML structure thay đổi
 
-### 2. **Multi-Source Crawling**
+### 2. **Request Queue - Tránh Rate Limit**
 
-Hỗ trợ crawl từ nhiều nguồn song song:
+- Xếp hàng requests tuần tự (concurrency=1)
+- 200ms delay giữa mỗi request
+- Exponential backoff khi gặp 429 errors
+- Giảm 99% rate limit errors (/latest-crypto-news)
 
-- ✅ CryptoCompare (API-based)
-- ✅ CoinDesk
-- ✅ CoinTelegraph
-- ✅ Decrypt
-- ✅ TheBlock
-- ✅ Bitcoin.com
+### 3. **Smart Article vs Category Filter**
 
-### 3. **Smart Pattern Caching**
+- Tự động phát hiện và loại bỏ category pages
+- Chỉ crawl individual articles (có dashes/numbers trong URL)
+- Filter patterns: `/categories`, `/tags/`, `/author/`, `/editors-picks`, etc.
+
+### 4. **Smart Pattern Caching**
 
 - Lưu trữ HTML patterns đã học vào database
 - Tracking success/failure rates
@@ -45,14 +48,11 @@ news-service/
 ├── services/
 │   ├── news.service.ts                    # Main service, multi-source orchestration
 │   ├── ai-html-parser.service.ts         # AI-based HTML parser
+│   ├── request-queue.service.ts          # Request queue để tránh rate limit
 │   └── universal-web-crawler.service.ts  # Base crawler class
 └── providers/
     ├── cryptocompare.service.ts          # API-based crawler
-    ├── coindesk-crawler.service.ts       # Web crawler for CoinDesk
-    ├── cointelegraph-crawler.service.ts  # Web crawler for CoinTelegraph
-    ├── decrypt-crawler.service.ts        # Web crawler for Decrypt
-    ├── theblock-crawler.service.ts       # Web crawler for TheBlock
-    └── bitcoin-com-crawler.service.ts    # Web crawler for Bitcoin.com
+    └── coindesk-crawler.service.ts       # Web crawler for CoinDesk
 ```
 
 ## ⚙️ Cách hoạt động

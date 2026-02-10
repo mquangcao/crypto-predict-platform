@@ -8,10 +8,11 @@ export class CoinDeskCrawlerService extends UniversalWebCrawlerService {
     const source: WebSource = {
       name: 'coindesk',
       domain: 'coindesk.com',
-      newsListUrl: 'https://www.coindesk.com/livewire/',
-      articleLinkSelector: 'article a[href*="/livewire/"], .article-cardstyles a',
-      maxArticles: 10,
-      waitForSelector: 'article',
+      newsListUrl: 'https://www.coindesk.com/latest-crypto-news',
+      // Target article cards - CoinDesk uses content-card-title class + href pattern /markets/YYYY/MM/DD/...
+      articleLinkSelector: 'a.content-card-title[href*="/markets/"]',
+      maxArticles: 20,
+      waitForSelector: 'body',
     };
     
     super(source, aiParser);

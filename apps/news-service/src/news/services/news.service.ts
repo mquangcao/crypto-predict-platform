@@ -113,11 +113,25 @@ export class NewsService {
   }
 
   async findBySymbol(symbol: string, limit: number = 50) {
-    return this.newsRepo
-      .createQueryBuilder('news')
-      .where(':symbol = ANY(news.symbols)', { symbol: symbol.toUpperCase() })
-      .orderBy('news.publishedAt', 'DESC')
-      .take(limit)
-      .getMany();
+    // Handle both array types and simple-array legacy format
+    const upperSymbol = symbol.toUpperCase();
+    
+    try {
+      // Try with proper array syntax first
+      return await this.newsRepo
+        .createQueryBuilder('news')
+        .where(':symbol = ANY(news.symbols)', { symbol: upperSymbol })
+        .orderBy('news.publishedAt', 'DESC')
+        .take(limit)
+        .getMany();
+    } catch (error) {
+      // Fallback to LIKE query for simple-array format
+      return await this.newsRepo
+        .createQueryBuilder('news')
+        .where('news.symbols LIKE :symbol', { symbol: `%${upperSymbol}%` })
+        .orderBy('news.publishedAt', 'DESC')
+        .take(limit)
+        .getMany();
+    }
   }
 }

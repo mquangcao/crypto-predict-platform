@@ -25,12 +25,13 @@ export class GatewayModule {
     const RegisteredClients: Provider = {
       provide: "RegisteredClients",
       useFactory: async (gatewayService: GatewayService) => {
-        return config.services.map((service) => {
+        const promises = config.services.map((service) => {
           return gatewayService.registerClient(
             service.serviceId,
             service.transport
           );
         });
+        await Promise.all(promises);
       },
       inject: [GatewayService],
     };
