@@ -55,20 +55,30 @@ export function PriceChart({
   // Helper function to ensure data is sorted before setting
   const setSortedCandleData = (data: CandlestickData[]) => {
     if (!candleSeriesRef.current) return;
-    
+
     // Ensure data is sorted
     const sorted = [...data].sort((a, b) => Number(a.time) - Number(b.time));
-    
+
     // Validate
     for (let i = 1; i < sorted.length; i++) {
       if (sorted[i].time < sorted[i - 1].time) {
-        console.error("[PriceChart] setSortedCandleData: Invalid sort at index", i, sorted[i].time, '<', sorted[i-1].time);
+        console.error(
+          "[PriceChart] setSortedCandleData: Invalid sort at index",
+          i,
+          sorted[i].time,
+          "<",
+          sorted[i - 1].time,
+        );
         throw new Error(`Data not sorted at index ${i}`);
       }
     }
-    
+
     candleSeriesRef.current.setData(sorted);
-    console.log("[PriceChart] setSortedCandleData: Set", sorted.length, "sorted items successfully");
+    console.log(
+      "[PriceChart] setSortedCandleData: Set",
+      sorted.length,
+      "sorted items successfully",
+    );
   };
 
   const [candles, setCandles] = useState<Candle[]>([]);
@@ -166,18 +176,35 @@ export function PriceChart({
         const fetched: Candle[] = json.data?.candles || [];
 
         // CRITICAL: Sort by time in ascending order (lightweight-charts requirement)
-        console.log("[PriceChart] Original data (first 3 candles):", fetched.slice(0, 3).map(c => ({ time: c.time, close: c.close })));
-        
+        console.log(
+          "[PriceChart] Original data (first 3 candles):",
+          fetched.slice(0, 3).map((c) => ({ time: c.time, close: c.close })),
+        );
+
         const sorted = [...fetched].sort((a, b) => a.time - b.time);
-        
-        console.log("[PriceChart] Sorted data (first 3 candles):", sorted.slice(0, 3).map(c => ({ time: c.time, close: c.close })));
+
+        console.log(
+          "[PriceChart] Sorted data (first 3 candles):",
+          sorted.slice(0, 3).map((c) => ({ time: c.time, close: c.close })),
+        );
         console.log("[PriceChart] Fetched", fetched.length, "candles");
-        console.log("[PriceChart] First candle time:", sorted[0]?.time, "Last candle time:", sorted[sorted.length - 1]?.time);
+        console.log(
+          "[PriceChart] First candle time:",
+          sorted[0]?.time,
+          "Last candle time:",
+          sorted[sorted.length - 1]?.time,
+        );
 
         // Validate sort order
         for (let i = 1; i < sorted.length; i++) {
           if (sorted[i].time < sorted[i - 1].time) {
-            console.error("[PriceChart] ERROR: Data not sorted at index", i, sorted[i].time, '<', sorted[i-1].time);
+            console.error(
+              "[PriceChart] ERROR: Data not sorted at index",
+              i,
+              sorted[i].time,
+              "<",
+              sorted[i - 1].time,
+            );
             throw new Error("Data sorting failed - not in ascending order");
           }
         }
@@ -195,14 +222,27 @@ export function PriceChart({
         // Final validation - verify candleData is sorted
         for (let i = 1; i < candleData.length; i++) {
           if (candleData[i].time < candleData[i - 1].time) {
-            console.error("[PriceChart] ERROR: candleData not sorted at index", i, candleData[i].time, '<', candleData[i-1].time);
+            console.error(
+              "[PriceChart] ERROR: candleData not sorted at index",
+              i,
+              candleData[i].time,
+              "<",
+              candleData[i - 1].time,
+            );
             throw new Error("CandleData mapping broke sort order");
           }
         }
 
-        console.log("[PriceChart] Final candleData (first 3):", candleData.slice(0, 3));
-        console.log("[PriceChart] Setting candlestick data with", candleData.length, "sorted items");
-        
+        console.log(
+          "[PriceChart] Final candleData (first 3):",
+          candleData.slice(0, 3),
+        );
+        console.log(
+          "[PriceChart] Setting candlestick data with",
+          candleData.length,
+          "sorted items",
+        );
+
         // Use helper to ensure sorted
         setSortedCandleData(candleData);
       } catch (err: any) {
@@ -357,7 +397,12 @@ export function PriceChart({
       // CRITICAL: Sort markers by time in ascending order (lightweight-charts requirement)
       .sort((a, b) => Number(a.time) - Number(b.time));
 
-    console.log("[PriceChart] Created", markers.length, "markers (sorted):", markers);
+    console.log(
+      "[PriceChart] Created",
+      markers.length,
+      "markers (sorted):",
+      markers,
+    );
 
     // Apply markers to candlestick series (v4 API)
     (candleSeriesRef.current as any).setMarkers(markers);

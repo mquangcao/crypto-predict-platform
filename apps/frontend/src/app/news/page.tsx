@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { Filter } from "lucide-react";
 import { NewsItemWithPrediction } from "@/components/news/NewsItemWithPrediction";
 
 interface NewsItem {
@@ -37,12 +38,13 @@ const sentimentColor: Record<string, string> = {
   neutral: "text-slate-600 bg-slate-100 border-slate-200",
 };
 
-const LIMIT = 50;
+const LIMIT = 100;
 
 export default function NewsPage() {
   const [news, setNews] = useState<MappedNewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [displayCount, setDisplayCount] = useState(10);
+  const [selectedSource, setSelectedSource] = useState<string>("all");
 
   // Helper function to format date
   const formatDate = (dateString: string): string => {
@@ -167,6 +169,22 @@ export default function NewsPage() {
     return () => clearInterval(interval);
   }, []);
 
+  // Get unique sources from news data
+  const availableSources = useMemo(() => {
+    const sources = new Set(news.map((n) => n.source));
+    return Array.from(sources).sort();
+  }, [news]);
+
+  // Filter news by selected source
+  const filteredNews = useMemo(() => {
+    if (selectedSource === "all") {
+      return news;
+    }
+    return news.filter(
+      (n) => n.source.toLowerCase() === selectedSource.toLowerCase(),
+    );
+  }, [news, selectedSource]);
+
   const handleLoadMore = () => {
     setDisplayCount((prev) => Math.min(prev + 10, news.length));
   };
@@ -187,10 +205,58 @@ export default function NewsPage() {
               </p>
               {news.length > 0 && (
                 <p className="text-sm text-slate-500 mt-2">
-                  Showing {displayCount} / {news.length} articles
+                  Showing {displayCount} / {filteredNews.length} articles
                 </p>
               )}
             </div>
+
+            {/* Source Filter */}
+            {!loading && news.length > 0 && (
+              <div className="mb-6 pb-4 border-b border-slate-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <Filter className="w-4 h-4 text-slate-600" />
+                  <span className="text-sm font-semibold text-slate-700">
+                    Filter by Source
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => {
+                      setSelectedSource("all");
+                      setDisplayCount(10);
+                    }}
+                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                      selectedSource === "all"
+                        ? "bg-indigo-600 text-white shadow-md"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    All ({news.length})
+                  </button>
+                  {availableSources.map((source) => {
+                    const count = news.filter(
+                      (n) => n.source === source,
+                    ).length;
+                    return (
+                      <button
+                        key={source}
+                        onClick={() => {
+                          setSelectedSource(source);
+                          setDisplayCount(10);
+                        }}
+                        className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                          selectedSource === source
+                            ? "bg-indigo-600 text-white shadow-md"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
+                      >
+                        {source} ({count})
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Loading State */}
             {loading && (
@@ -200,10 +266,10 @@ export default function NewsPage() {
             )}
 
             {/* News Grid */}
-            {!loading && news.length > 0 && (
+            {!loading && filteredNews.length > 0 && (
               <>
                 <div className="grid gap-4 mb-8">
-                  {news.slice(0, displayCount).map((item) => (
+                  {filteredNews.slice(0, displayCount).map((item) => (
                     <NewsItemWithPrediction
                       key={item.id}
                       newsItem={item}
@@ -213,13 +279,13 @@ export default function NewsPage() {
                 </div>
 
                 {/* Load More Button */}
-                {displayCount < news.length && (
+                {displayCount < filteredNews.length && (
                   <div className="flex justify-center">
                     <button
                       onClick={handleLoadMore}
                       className="px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition font-bold shadow-md shadow-indigo-100"
                     >
-                      Load more ({news.length - displayCount} articles
+                      Load more ({filteredNews.length - displayCount} articles
                       remaining)
                     </button>
                   </div>
@@ -231,6 +297,15 @@ export default function NewsPage() {
             {!loading && news.length === 0 && (
               <div className="text-center py-20">
                 <p className="text-slate-500 text-lg">No news available</p>
+              </div>
+            )}
+
+            {/* No Results for Selected Source */}
+            {!loading && news.length > 0 && filteredNews.length === 0 && (
+              <div className="text-center py-20">
+                <p className="text-slate-500 text-lg">
+                  No articles from {selectedSource}
+                </p>
               </div>
             )}
           </div>
