@@ -1,172 +1,271 @@
-**Giới Thiệu**
+# Nền Tảng Phân Tích Giá Crypto với Tin Tức và AI
 
-Đây là một monorepo sử dụng Turborepo, chứa nhiều ứng dụng và packages liên quan đến một nền tảng crypto (frontend Next.js, dịch vụ NestJS cho authentication, market streaming và news AI). README này tóm tắt cấu trúc, các package đã cài, yêu cầu môi trường và cách chạy / build dự án.
+Dự án này triển khai hệ thống phân tích giá crypto kết hợp tin tức tài chính và mô hình AI. Người dùng có thể xem biểu đồ giá real-time, theo dõi tin tức từ nhiều nguồn, và (nếu là VIP) xem kết quả phân tích AI dự báo xu hướng giá.
 
-**Yêu Cầu Môi Trường**
+## Video Demo
 
-- **Node.js**: >= 18 (theo `package.json` gốc)
-- **npm**: dự án sử dụng `packageManager` = `npm@10.9.0` (khuyến nghị) hoặc quản lý package tương thích
-- **Turborepo**: devDependency `turbo` được khai báo; bạn có thể dùng `npx turbo` nếu không cài global
+- Demo hệ thống: https://www.youtube.com/watch?v=fEIBUuV31ck
 
-**Cấu Trúc Dự Án (chung)**
+## Kiến trúc hệ thống
 
-- `apps/`
-  - `frontend/` — Next.js app (React 19, Next 16)
-  - `auth-service/` — NestJS service cho authentication
-  - `market-service/` — NestJS service xử lý stream giá và websocket
-  - `news-ai-service/` — NestJS service cho xử lý tin tức + AI
-- `packages/`
-  - `ui/` — thư viện component chia sẻ
-    **Introduction**
+Hệ thống bao gồm nhiều service NodeJS/NestJS chuyên biệt, mỗi service đảm nhận một nhiệm vụ cụ thể:
 
-  This repository is a Turborepo monorepo containing multiple applications and shared packages for a crypto platform: a Next.js frontend and several NestJS microservices (authentication, market streaming, and news AI). This README summarizes the project layout, installed packages, environment requirements, and how to run and build the project.
+**Core Services:**
 
-  **Environment Requirements**
-  - **Node.js**: >= 18 (declared in the root `package.json`)
-  - **npm**: This project uses `packageManager` = `npm@10.9.0` (recommended), but other compatible package managers will also work.
-  - **Turborepo**: `turbo` is listed in devDependencies; you can use `npx turbo` if you don't have it installed globally.
+- **Frontend**: Giao diện web hiển thị biểu đồ giá, tin tức, kết quả phân tích (Next.js)
+- **Market Service**: Lấy dữ liệu giá lịch sử từ Binance, stream real-time qua WebSocket
+- **News Service**: Thu thập tin tức tài chính tự động từ nhiều nguồn bằng web scraper
+- **News AI Service**: Phân tích tin tức bằng mô hình AI, tính sentiment và dự báo ảnh hưởng lên giá
 
-  **Repository Structure (high level)**
-  - `apps/`
-    - `frontend/` — Next.js app (React 19, Next 16)
-    - `auth-service/` — NestJS authentication service
-    - `market-service/` — NestJS market streaming & websocket service
-    - `news-ai-service/` — NestJS news + AI service
-  - `packages/`
-    - `ui/` — shared React component library
-    - `eslint-config/`, `typescript-config/` — shared configurations
+**Support Services:**
 
-  **Key Tools & Installed Packages**
-  - Root:
-    - `turbo` (Turborepo), `prettier`, `typescript`
-  - Frontend (`apps/frontend`):
-    - `next@16.x`, `react@19.x`, `react-dom@19.x`, `socket.io-client`, `lightweight-charts`
-    - Dev tools: `tailwindcss`, `eslint`, `prettier`, `typescript`
-  - Backend services (`auth-service`, `market-service`, `news-ai-service`):
-    - `@nestjs/*` (v11), `reflect-metadata`, `rxjs`
-    - `market-service` additionally uses `@nestjs/platform-socket.io`, `@nestjs/websockets`, `axios`, and `ws` for realtime streams
-    - Dev & test: `jest`, `ts-jest`, `ts-node`, `eslint`, `prettier`, etc.
-  - Shared packages (`packages/ui`, `packages/eslint-config`, `packages/typescript-config`):
-    - `react`, `react-dom` (inside `ui`), and shared lint/tsconfig packages
+- **Auth Service**: Xác thực người dùng (JWT)
+- **User Service**: Quản lý hồ sơ người dùng
+- **Plan Service**: Quản lý gói subscription (Free/Pro/VIP)
+- **Subscription Service**: Theo dõi gói của từng người dùng
+- **Payment Service**: Xử lý thanh toán
 
-  **Important Scripts (root & per-app)**
-  - Root `package.json`:
-    - `npm run dev` → `turbo run dev --parallel` (run dev servers in parallel)
-    - `npm run build` → `turbo run build`
-    - `npm run lint` → `turbo run lint`
-    - `npm run format` → `prettier --write "**/*.{ts,tsx,md}"`
-    - `npm run check-types` → `turbo run check-types`
+Dữ liệu được lưu trữ trong Database (PostgreSQL/SQLite tùy service) và stream real-time qua WebSocket cho giao diện.
 
-  - Frontend (`apps/frontend`):
-    - `npm run dev` → `next dev`
-    - `npm run build` → `next build`
-    - `npm run start` → `next start`
+## System Design
 
-  - NestJS services (`apps/*-service`):
-    - `npm run dev` → `nest start --watch`
-    - `npm run build` → `nest build`
-    - `npm run start:prod` → `node dist/main`
+### Tính năng cốt lõi
 
-  You can run a single app by `cd` into its folder and running `npm install` and the appropriate `npm run` script, or you can use Turborepo from the root to run multiple apps concurrently.
+![Kiến trúc hệ thống](docs/primary-features.png)
 
-  **Quick Start & Installation (Windows PowerShell)**
-  1. Install dependencies at the repository root:
+<p align="center"><em>Primary Features - Các tính năng cốt lõi của nền tảng</em></p>
 
-  ```powershell
-  cd "c:\Users\User\OneDrive - VNU-HCMUS\Documents\KHTN\KTPM\DOAN\crypto-platform"
-  npm install
-  ```
+### Tính năng bổ trợ
 
-  2. Start all apps in development mode using Turborepo:
+![Kiến trúc hệ thống phần mở rộng](docs/secondary-features.png)
 
-  ```powershell
-  npm run dev
-  ```
+<p align="center"><em>Secondary Features - Các tính năng bổ trợ cho vận hành và trải nghiệm</em></p>
 
-  This runs `turbo run dev --parallel` and starts the configured apps under `apps/*`.
-  3. Run a single app locally
-  - Frontend:
+---
 
-  ```powershell
-  cd apps/frontend
-  npm run dev
-  ```
+## Hướng dẫn cài đặt và khởi chạy
 
-  - Auth service:
+### 1. Yêu cầu hệ thống
 
-  ```powershell
-  cd apps/auth-service
-  npm run dev
-  ```
+- Node.js v18+
+- npm v10.9.0+
+- PostgreSQL hoặc SQLite (tùy service)
+- Binance API key (optional, để test Market Service)
 
-  - Market service:
+### 2. Cài đặt dependencies
 
-  ```powershell
-  cd apps/market-service
-  npm run dev
-  ```
+```bash
+npm install
+```
 
-  - News AI service:
+### 3. Thiết lập biến môi trường
 
-  ```powershell
-  cd apps/news-ai-service
-  npm run dev
-  ```
+Mỗi service cần file `.env`. Ví dụ cho market-service:
 
-  4. Build for production (example: build everything with Turbo):
+```env
+# market-service/.env
+BINANCE_API_KEY=your_key_here
+BINANCE_API_SECRET=your_secret_here
+PORT=3003
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=market_db
+```
 
-  ```powershell
-  npm run build
-  ```
+### 4. Khởi chạy toàn bộ hệ thống
 
-  You can also build a specific app using a Turbo filter, e.g.:
+```bash
+npm run dev
+```
 
-  ```powershell
-  npx turbo build --filter=apps/frontend
-  ```
+Hoặc chạy từng service riêng lẻ:
 
-  5. Start a built NestJS service in production mode (example):
+```bash
+cd apps/frontend && npm run dev
+cd apps/market-service && npm run dev
+cd apps/news-service && npm run dev
+```
 
-  ```powershell
-  cd apps/market-service
-  npm run build
-  npm run start:prod
-  ```
+## Truy cập các dịch vụ
 
-  **Linting / Formatting / Type Checking**
-  - Lint the entire monorepo:
+| Dịch vụ                  | Địa chỉ truy cập        | Chức năng chính                                   |
+| :----------------------- | :---------------------- | :------------------------------------------------ |
+| **Frontend**             | `http://localhost:3000` | Giao diện web: biểu đồ giá, tin tức, phân tích AI |
+| **Auth Service**         | `http://localhost:3001` | API xác thực người dùng (Endpoint internal)       |
+| **User Service**         | `http://localhost:3002` | API quản lý hồ sơ người dùng (Endpoint internal)  |
+| **Market Service**       | `http://localhost:3003` | WebSocket stream giá real-time + REST API lịch sử |
+| **News Service**         | `http://localhost:3004` | API lấy tin tức được scrape (Endpoint internal)   |
+| **News AI Service**      | `http://localhost:3005` | API phân tích AI, sentiment (VIP only)            |
+| **Plan Service**         | `http://localhost:3006` | API quản lý gói subscription (Endpoint internal)  |
+| **Subscription Service** | `http://localhost:3007` | API theo dõi gói của user (Endpoint internal)     |
+| **Payment Service**      | `http://localhost:3008` | API xử lý thanh toán (Endpoint internal)          |
 
-  ```powershell
-  npm run lint
-  ```
+---
 
-  - Format code with Prettier:
+## Các tính năng chính
 
-  ```powershell
-  npm run format
-  ```
+### 1. Biểu Đồ Giá Real-Time (Market Service)
 
-  - Run TypeScript checks (if configured):
+**Chức năng:**
 
-  ```powershell
-  npm run check-types
-  ```
+- Lấy dữ liệu giá lịch sử từ API Binance (OHLCV: Open, High, Low, Close, Volume)
+- Stream giá real-time qua WebSocket từ Binance (không polling)
+- Hỗ trợ đa khung thời gian: 1m, 5m, 15m, 1h, 4h, 1d
+- Hỗ trợ đa cặp tiền: BTCUSDT, ETHUSDT, BNBUSDT, ...
+- Kiến trúc scalable xử lý nhiều concurrent users
 
-  **Project-specific Notes**
-  - The frontend Next.js config enables the React compiler (`reactCompiler: true`) — see `apps/frontend/next.config.ts`.
-  - `market-service` uses WebSocket/Socket.io (`@nestjs/platform-socket.io`, `ws`) to stream realtime price data — the frontend must connect to the appropriate endpoint.
-  - The NestJS services rely on environment variables where applicable; there are no default `.env` files in the repository. Check each service's `src/main.ts` or configuration files for port and env expectations.
+**Cách sử dụng:**
 
-  **Troubleshooting Tips**
-  - If Node version is incompatible: install Node >=18 or use nvm to switch versions.
-  - If Turbo CLI errors occur: use `npx turbo` instead of a global `turbo` installation.
-  - If an app fails to start: check console logs, confirm required env vars, and ensure ports are not in conflict.
+```javascript
+// Frontend (Socket.io client)
+const socket = io("http://localhost:3003");
 
-  **Next Steps (optional tasks I can help with)**
-  - Run `npm install` and `npm run dev` in this workspace and report errors/logs.
-  - Create `.env.example` files for each service (you can provide expected env variables).
-  - Add Dockerfiles and a basic `docker-compose` for local development.
+// Subscribe vào cặp tiền
+socket.emit("subscribe", { pair: "BTCUSDT", interval: "1h" });
 
-  ***
+// Nhận dữ liệu real-time
+socket.on("price_update", (data) => {
+  console.log("Close:", data.close, "Volume:", data.volume);
+});
+```
 
-  _This README was generated automatically from the repository's `package.json`, `turbo.json`, and `next.config.ts`. If you want me to include example environment variables, service ports, or deployment instructions (Docker/CI), tell me which one to add next._
+**REST API (lấy dữ liệu lịch sử):**
+
+```bash
+GET http://localhost:3003/api/prices?pair=BTCUSDT&interval=1h&limit=100
+```
+
+---
+
+### 2. Thu Thập Tin Tức Tự Động (News Service)
+
+**Chức năng:**
+
+- Tự động kéo tin tức từ nhiều nguồn (CryptoCompare, CoinDesk, Cointelegraph, ...)
+- Sử dụng Playwright để scrape HTML các website
+- Tự động học và thích ứng với cấu trúc HTML mỗi trang web
+- Xử lý thay đổi layout website (robust scraping)
+- Lưu trữ đầy đủ: tiêu đề, nội dung, hình ảnh, nguồn, thời gian
+- Cron job chạy mỗi 30 phút để cập nhật tin mới
+
+**Cách sử dụng:**
+
+```bash
+# Lấy danh sách tin tức
+GET http://localhost:3004/api/news?limit=20
+
+# Tìm kiếm tin theo keyword
+GET http://localhost:3004/api/news/search?q=Bitcoin&source=CoinDesk
+
+# Lọc theo ngày
+GET http://localhost:3004/api/news?from=2024-03-01&to=2024-03-31
+```
+
+**Truy cập qua Frontend:** Bảng tin tức ở tab "News" hoặc "Tin Tức"
+
+---
+
+### 3. Phân Tích AI & Dự Báo (News AI Service)
+
+**Chức năng (VIP only):**
+
+- **Sentiment Analysis**: Phân loại tin tức là tích cực (bullish), tiêu cực (bearish), hay trung lập
+- **Mô hình AI**: Dùng Hugging Face transformers hoặc TensorFlow (pre-trained models)
+- **Align News + Price**: Kết hợp tin tức với dữ liệu giá lịch sử
+- **Dự báo Trend**: Dự báo giá sẽ tăng/giảm dựa trên tin tức
+- **Phân tích Nhân Quả (Nâng cao)**: Giải thích "tại sao" - tin tức này ảnh hưởng đến giá trong bao lâu, mức độ ảnh hưởng (%)
+
+**Ví dụ output:**
+
+```json
+{
+  "news_id": "12345",
+  "title": "Bitcoin Supply Squeeze Expected",
+  "sentiment": "bullish",
+  "confidence": 0.92,
+  "predicted_impact": {
+    "direction": "up",
+    "magnitude_percent": 2.5,
+    "duration_hours": 4,
+    "reason": "Token shortage tức là ít cung → giá tăng trong 3-4h tới"
+  }
+}
+```
+
+**Cách sử dụng (VIP only):**
+
+```bash
+GET http://localhost:3005/api/analysis?news_id=12345
+GET http://localhost:3005/api/sentiment?pair=BTC&interval=24h
+```
+
+---
+
+### 4. Quản Lý Subscription & Tài Khoản
+
+**Các Tier:**
+
+| Tier                      | Free | Pro   | VIP           |
+| ------------------------- | ---- | ----- | ------------- |
+| Xem biểu đồ giá real-time | ✓    | ✓     | ✓             |
+| Xem tin tức               | ✓    | ✓     | ✓             |
+| Xem phân tích AI          | ✗    | ✗     | ✓             |
+| Số cặp tiền được xem      | 2    | 10    | Tất cả        |
+| Cảnh báo giá              | ✗    | ✓     | ✓             |
+| Hỗ trợ                    | ✗    | Email | Realtime chat |
+
+**Flow thanh toán:**
+
+1. Người dùng chọn gói (Pro hoặc VIP)
+2. Payment Service xử lý giao dịch (Stripe, Paypal, ...)
+3. Subscription Service cập nhật status
+4. Frontend kiểm tra tier trước hiển thị các feature
+
+```bash
+# Backend check permission trước expose API
+GET http://localhost:3005/api/analysis
+# Response 403 nếu user không phải VIP
+```
+
+## Build & Deployment
+
+### Build toàn bộ project
+
+```bash
+npm run build
+```
+
+### Build service riêng
+
+```bash
+npx turbo build --filter=apps/market-service
+```
+
+### Run production
+
+```bash
+# Backend service (Market Service)
+cd apps/market-service
+npm run build
+npm run start:prod
+
+# Frontend (Next.js)
+cd apps/frontend
+npm run build
+npm run start
+```
+
+---
+
+## Công nghệ sử dụng
+
+| Layer         | Công nghệ                                            |
+| ------------- | ---------------------------------------------------- |
+| **Frontend**  | Next.js 16, React 19, Tailwind CSS, Socket.io Client |
+| **Backend**   | NestJS 11, TypeScript, Express                       |
+| **Real-time** | Socket.io, WebSocket, Binance Stream                 |
+| **AI/ML**     | Sentiment Analysis                                   |
+| **Database**  | PostgreSQL, TypeORM                                  |
+| **DevOps**    | Turborepo, Docker, Docker Compose                    |
+
+---
